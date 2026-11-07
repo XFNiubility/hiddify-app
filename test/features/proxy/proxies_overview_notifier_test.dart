@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
@@ -12,8 +13,10 @@ import 'package:hiddify/features/proxy/data/proxy_repository.dart';
 import 'package:hiddify/features/proxy/model/proxy_failure.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hiddify/features/proxy/widget/proxy_tile.dart';
+import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/hiddifycore/generated/google/protobuf/timestamp.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,6 +39,29 @@ class _Repository implements ProxyRepository {
     return TaskEither.right(unit);
   }
 
+  final uploaded = <(String, int)>[];
+
+  @override
+  TaskEither<ProxyFailure, Unit> uploadTest(String tag, int bytes) {
+    uploaded.add((tag, bytes));
+    return TaskEither.right(unit);
+  }
+
+  final downloaded = <(String, int)>[];
+  int cleared = 0;
+
+  @override
+  TaskEither<ProxyFailure, Unit> clearSpeedTests() {
+    cleared++;
+    return TaskEither.right(unit);
+  }
+
+  @override
+  TaskEither<ProxyFailure, Unit> downloadTest(String tag, int bytes) {
+    downloaded.add((tag, bytes));
+    return TaskEither.right(unit);
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
@@ -47,11 +73,13 @@ class _Notifications extends InAppNotificationController {
   void showErrorToast(String message) => errors.add(message);
 }
 
-/// A proxy as the core reports it; [testedAt] is the second its ping was measured.
+/// A proxy as the core reports it; [testedAt] is the second its ping was measured. The core sends
+/// the ping again as sort_delay, which the list sorts by.
 OutboundInfo proxy(String tag, int delay, {int testedAt = 1, bool group = false}) => OutboundInfo(
   tag: tag,
   isGroup: group,
   urlTestDelay: delay,
+  sortDelay: delay,
   urlTestTime: Timestamp.fromDateTime(DateTime.fromMillisecondsSinceEpoch(testedAt * 1000, isUtc: true)),
 );
 
@@ -165,12 +193,21 @@ void main() {
       expect(repository.tested, ['b']);
     });
 
-    testWidgets('a long press on the ping switches number and signal, and keeps the choice', (tester) async {
+    testWidgets("a long press on the ping tests the proxy's upload speed", (tester) async {
       await open(tester);
       await row(tester, proxy('a', 182));
-      expect(container.read(proxyPingStyleNotifierProvider), ProxyPingStyle.number);
-      expect(find.text('182'), findsOneWidget);
       await tester.longPress(ping());
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(repository.uploaded, [('a', 1 << 20)]);
+      expect(repository.tested, isEmpty);
+    });
+
+    testWidgets('the signal style switch keeps the choice', (tester) async {
+      await open(tester);
+      await row(tester, proxy('a', 182));
+      expect(find.text('182'), findsOneWidget);
+      await tester.runAsync(() => container.read(proxyPingStyleNotifierProvider.notifier).toggle());
+      await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
       expect(container.read(proxyPingStyleNotifierProvider), ProxyPingStyle.signal);
       expect(find.text('182'), findsNothing);
@@ -188,5 +225,81 @@ void main() {
       expect(find.textContaining(t.pages.proxies.status.connecting), findsOneWidget);
       expect(find.textContaining('⏳'), findsNothing);
     });
+  });
+
+  testWidgets('a speed test of a short list tests its group, with the megabytes of the settings', (tester) async {
+    await open(tester);
+    await stream(tester, [proxy('lowest', 100, group: true), proxy('a', 100), proxy('b', 200)]);
+    await tester.runAsync(() => container.read(ConfigOptions.uploadTestSize.notifier).update(2));
+    await notifier().speedTestAll();
+    expect(repository.uploaded, [('select', 2 << 20)]);
+  });
+
+  testWidgets('a speed test of a long list tests only the fastest, one by one, the way it is set', (tester) async {
+    await open(tester);
+    await stream(tester, [proxy('a', 300), proxy('b', 100), proxy('c', 200), proxy('d', 65535)]);
+    await tester.runAsync(() async {
+      await container.read(ConfigOptions.uploadTestLimit.notifier).update(2);
+      await container.read(ConfigOptions.speedTestDirection.notifier).update(SpeedTestDirection.download);
+    });
+    await notifier().speedTestAll();
+    expect(repository.downloaded, [('b', 1 << 20), ('c', 1 << 20)]);
+    expect(repository.uploaded, isEmpty);
+  });
+
+  testWidgets('a speed test set to all of them tests the group', (tester) async {
+    await open(tester);
+    await stream(tester, [proxy('a', 300), proxy('b', 100), proxy('c', 200)]);
+    await tester.runAsync(() => container.read(ConfigOptions.uploadTestLimit.notifier).update(0));
+    await notifier().speedTestAll();
+    expect(repository.uploaded, [('select', 1 << 20)]);
+  });
+
+  test('the fastest proxies are those that answered, by their ping', () {
+    final proxies = [
+      proxy('slow', 900),
+      proxy('dead', 65535),
+      proxy('fast', 80),
+      proxy('untested', 0),
+      proxy('mid', 300),
+    ];
+    expect(fastestProxies(proxies, 2), ['fast', 'mid']);
+    expect(fastestProxies(proxies, 10), ['fast', 'mid', 'slow']);
+  });
+
+  test('by upload speed: this run first, then the cached, then by download, then by ping', () {
+    OutboundInfo speeds(String tag, int up, int down, int delay, {bool cached = false}) => OutboundInfo(
+      tag: tag,
+      uploadSpeed: Int64(up),
+      uploadSpeedCached: cached,
+      downloadSpeed: Int64(down),
+      urlTestDelay: delay,
+    );
+    final proxies = [
+      speeds('untested', 0, 0, 90),
+      speeds('cached, fastest', 900, 0, 50, cached: true),
+      speeds('slow up', 100, 900, 50),
+      speeds('fast up, slow down', 500, 100, 300),
+      speeds('fast up, fast down, slow ping', 500, 800, 400),
+      speeds('fast up, fast down, fast ping', 500, 800, 120),
+      speeds('cached, slower', 300, 0, 50, cached: true),
+      speeds('failed up', -1, 900, 40),
+    ]..sort((a, b) => compareBySpeeds(a, b, uploadFirst: true));
+    expect(proxies.map((e) => e.tag), [
+      // this run's uploads, the fastest first
+      'fast up, fast down, fast ping',
+      'fast up, fast down, slow ping',
+      'fast up, slow down',
+      'slow up',
+      // then the earlier runs', the fastest first
+      'cached, fastest',
+      'cached, slower',
+      // no upload: by download, then ping
+      'failed up',
+      'untested',
+    ]);
+    // by download: equal downloads go by upload, a failed one after a measured one
+    proxies.sort((a, b) => compareBySpeeds(a, b, uploadFirst: false));
+    expect(proxies.take(2).map((e) => e.tag), ['slow up', 'failed up']);
   });
 }

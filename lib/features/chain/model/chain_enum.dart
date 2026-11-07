@@ -14,11 +14,11 @@ enum ChainType {
   };
 
   /// Its colors, the main one and the one lighting its icon: extra security green, unblocker
-  /// amber, both blue with a Profile hop.
+  /// orange, both blue with a Profile hop.
   (Color main, Color accent) colors(ChainMode mode) => switch (this) {
     _ when mode == ChainMode.profile => (const Color(0xFF4DA3E8), const Color(0xFF3CC8E0)),
     extraSecurity => (const Color(0xFF5BD68A), const Color(0xFF3CC8E0)),
-    unblocker => (const Color(0xFFFFC94D), const Color(0xFFFF8A3D)),
+    unblocker => (const Color(0xFFFF8A3D), const Color(0xFFFFB347)),
   };
 
   bool isDisable(ChainStatus status) => name != status.name;
@@ -59,7 +59,7 @@ enum ChainTimelineLevel {
     ChainTimelineLevel.app => ChainConst.iconByPlatform(),
     ChainTimelineLevel.extraSecurity => Icons.security_rounded,
     ChainTimelineLevel.mainProfile => Icons.lan_rounded,
-    ChainTimelineLevel.unblocker => Icons.lock_open_rounded,
+    ChainTimelineLevel.unblocker => Icons.meeting_room_rounded,
     ChainTimelineLevel.filtering => Icons.wifi_rounded,
   };
 

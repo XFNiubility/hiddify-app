@@ -122,7 +122,9 @@
         "unsorted": "Varsayılan",
         "name": "Alfabetik",
         "delay": "Gecikmeye göre",
-        "usage": "Kullanıma göre"
+        "usage": "Kullanıma göre",
+        "upload": "Yükleme hızına göre",
+        "download": "İndirme hızına göre"
       },
       "ipInfo": {
         "address": "IP adresi",
@@ -143,11 +145,93 @@
         "searching": "Aranıyor",
         "reconnecting": "Yeniden bağlanıyor"
       },
-      "signalStyle": "Sinyal stili"
+      "signalStyle": "Sinyal stili",
+      "keepTop": {
+        "picking": "$count proxy içinden en hızlı $keep tanesi aranıyor…",
+        "pickingBody": "Tüm proxy'ler bir kez test edilir; sonra yalnızca en hızlılar çalışmaya devam eder.",
+        "kept": "En hızlı $n tanesi çalışıyor",
+        "keptBody": "Pil ve veri tasarrufu için diğer $paused proxy duraklatıldı.",
+        "showAll": "$count tanesini de göster",
+        "big": "$count proxy çalışıyor",
+        "bigBody": "Pil ve veri tasarrufu için yalnızca en hızlı $keep tanesini çalışır bırakın.",
+        "keep": "En hızlı $keep taneyi tut",
+        "change": "Sayıyı değiştir",
+        "chosen": "Seçtiğiniz $n proxy çalışıyor",
+        "choose": "Seç"
+      },
+      "upload": {
+        "test": "Yükleme hızını test et",
+        "failed": "Hız testi başlatılamadı",
+        "hint": "Dokun: yükleme hızı · Basılı tut: indirme hızı",
+        "hintBoth": "Dokun: iki hız · Basılı tut: indirme hızı"
+      },
+      "speedTest": {
+        "title": "Hız testi",
+        "what": "Ne test edilsin",
+        "download": "İndirme",
+        "upload": "Yükleme",
+        "amount": "Proxy başına miktar",
+        "proxies": "Test edilecek proxy'ler",
+        "proxiesHint": "Ping'e göre en hızlılar",
+        "all": "Tümü",
+        "fastest": "En hızlı $n",
+        "through": "En hızlı $count proxy'nin her birinden $n MB",
+        "throughAll": "$count proxy'nin her birinden $n MB",
+        "throughEach": "Her proxy'den $n MB",
+        "start": "Testi başlat",
+        "save": "Kaydet",
+        "testDownload": "İndirme hızını test et",
+        "both": "İkisi",
+        "bothWays": "indirme ve yükleme",
+        "amountHint": "daha fazlası daha doğru",
+        "clear": "Kayıtlı sonuçları temizle",
+        "cleared": "Temizlendi",
+        "which": "Hangi proxy'ler",
+        "shown": "Gösterilen ($n)",
+        "chosen": "Seçilen ($n)"
+      }
     },
     "profiles": {
       "title": "Profiller",
       "add": "Profil ekle",
+      "fromPhone": {
+        "title": "Telefonundan ekle",
+        "scan": "Bu kodu telefonunun kamerasıyla tara, bir abonelik bağlantısı yapıştır ve gönder.",
+        "sameNetwork": "Telefonun ve bu TV aynı Wi-Fi ağında olmalı.",
+        "noNetwork": "Bu TV yerel bir ağa bağlı değil. Telefonundan bağlantı eklemek için onu Wi-Fi'ye bağla.",
+        "locked": "Çok fazla yanlış kod denendi, bu yüzden kilitlendi. Yeni bir kod için kapatıp yeniden aç.",
+        "received": "Telefonundan alındı",
+        "from": "Gönderen: $address",
+        "page": {
+          "title": "TV'deki Hiddify'a gönder",
+          "intro": "Kumandayla yazmadan, dört kısa adımda TV'ye abonelik ekle.",
+          "steps": {
+            "network": {
+              "title": "Aynı Wi-Fi'ye bağlan",
+              "body": "Telefon ve TV aynı Wi-Fi ağında olmalı, yoksa bu sayfa TV'ye ulaşamaz."
+            },
+            "copy": {
+              "title": "Bağlantıyı kopyala",
+              "body": "Sağlayıcından abonelik bağlantısını ya da herhangi bir proxy bağlantısını veya yapılandırmayı kopyala."
+            },
+            "paste": {
+              "title": "Buraya yapıştır",
+              "body": "Aşağıdaki kutuya dokun, bağlantıyı yapıştır, sonra “TV'ye gönder”e dokun."
+            },
+            "confirm": {
+              "title": "TV'de onayla",
+              "body": "Bağlantı TV'de görünür. Kumandayla İçe aktar'a bas. Sen basmadan hiçbir şey eklenmez."
+            }
+          },
+          "label": "Abonelik bağlantısı",
+          "hint": "Abonelik bağlantısını veya yapılandırmayı yapıştır",
+          "send": "TV'ye gönder",
+          "sentTitle": "TV'ye gönderildi",
+          "sent": "Eklemek için şimdi TV'de İçe aktar'a bas. Aşağıdan başka bir bağlantı da gönderebilirsin.",
+          "empty": "Önce bir bağlantı yapıştır.",
+          "footer": "Bu sayfa yalnızca TV'de “Profil ekle” açıkken ve yalnızca yerel ağında çalışır."
+        }
+      },
       "update": "Profili güncelle",
       "viewAllProfiles": "Tüm profilleri görüntüle",
       "activeProfileName": "Aktif profil adı: “${name}”",
@@ -276,7 +360,10 @@
         "useXrayCoreWhenPossible": "Mümkün olduğunda xray-core kullan",
         "useXrayCoreWhenPossibleMsg": "Abonelik bağlantılarını ayrıştırırken xray-core kullanın. Bu seçeneği açmak için aboneliği yeniden içe aktarın.",
         "useSystemTlsEngine": "Varsa sistemin TLS’ini kullan",
-        "useSystemTlsEngineMsg": "TLS parmak izi olmayan bağlantılar, bu cihazda bir denetimden geçtikten sonra macOS, iOS veya Windows’un TLS’ini kullanır; aksi hâlde Chrome gibi görünür."
+        "useSystemTlsEngineMsg": "TLS parmak izi olmayan bağlantılar, bu cihazda bir denetimden geçtikten sonra macOS, iOS veya Windows’un TLS’ini kullanır; aksi hâlde Chrome gibi görünür.",
+        "uploadTestSize": "Yükleme testi boyutu",
+        "megabytes": "$n MB",
+        "speedTest": "Hız testi"
       },
       "routing": {
         "title": "Yönlendirme",
@@ -497,13 +584,29 @@
           "system": "Sistem",
           "gvisor": "gVisor"
         },
-        "mixedPort": "Karışık port",
+        "mixedPort": "Proxy portu (SOCKS5/4, HTTP)",
         "tproxyPort": "Şeffaf proxy portu",
         "directPort": "Direct portu",
         "redirectPort": "Yönlendirme portu",
         "lanSharing": "Güvenli VPN paylaşımı",
+        "connectionSharing": "Bağlantı paylaşımı",
         "qrCode": "QR kod",
-        "lanQrSubtitle": "SOCKS5 proxy"
+        "closedInVpn": "VPN modunda kapalı, paylaşılmadıkça",
+        "proxySecret": "Proxy parolası",
+        "noSecret": "Parola yok: porta erişen her uygulama veya cihaz kullanabilir",
+        "generateSecret": "Yeni oluştur",
+        "removeSecret": "Parola kaldırılsın mı?",
+        "removeSecretMsg": "Parola olmadan bu cihazdaki her uygulama ve paylaşım açıkken ağdaki her cihaz proxy'yi kullanıcı adı ve parola olmadan kullanabilir. Riski size aittir.",
+        "localProxy": "Yerel proxy",
+        "localProxyInVpn": "VPN modunda açık tut",
+        "localProxyInVpnHint": "Uygulamalar zaten VPN'i kullanır; yalnızca proxy'ye ayarlanmış uygulamalar için",
+        "localProxyAuth": "Parola iste",
+        "localProxyAuthHint": "Tarayıcılar gibi bazı uygulamalar SOCKS parolası gönderemez",
+        "notAsSystemProxy": "Sistem proxy'si için istenmez, çünkü onu gönderemez",
+        "lanGroup": "Yerel ağda paylaşım",
+        "lanSharingPort": "Paylaşım portu",
+        "otherPorts": "Diğer portlar",
+        "closedInVpnLocal": "VPN modunda kapalı"
       },
       "tlsTricks": {
         "title": "TLS hileleri",
@@ -553,6 +656,7 @@
         "warp": {
           "missingConfig": "WARP yapılandırması eksik",
           "licenseKey": "Lisans anahtarı",
+          "tunnel": "Tünel",
           "cleanIp": "Temiz IP",
           "port": "Port",
           "noise": {
@@ -569,7 +673,26 @@
               "dnsCloudflare": "DNS (cloudflare.com)",
               "sip": "SIP (VoIP araması)",
               "stun": "STUN (görüntülü arama)"
-            }
+            },
+            "title": "WireGuard gürültüsü"
+          },
+          "endpoint": "Uç nokta",
+          "endpointSources": {
+            "profile": "Cloudflare'in atadığı",
+            "scan": "Tarama",
+            "custom": "Özel"
+          },
+          "customServer": "Adres",
+          "mtu": "MTU",
+          "customized": "Özelleştirildi",
+          "scanner": {
+            "title": "Tarayıcı"
+          },
+          "masque": {
+            "title": "MASQUE"
+          },
+          "awg": {
+            "title": "AmneziaWG"
           }
         },
         "psiphon": {
@@ -671,7 +794,13 @@
       "msg": "@:common.appTitle'ın yeni bir sürümü mevcut. Şimdi güncellensin mi?",
       "currentVersion": "Mevcut sürüm",
       "newVersion": "Yeni sürüm",
-      "updateNow": "Şimdi güncelle"
+      "updateNow": "Şimdi güncelle",
+      "downloading": "İndiriliyor…",
+      "installing": "Yükleyici başlatılıyor…",
+      "allowInstall": "Açılan ayarlarda Hiddify'ın uygulama yüklemesine izin verin, sonra tekrar deneyin.",
+      "failed": "Güncelleme yüklenemedi.",
+      "openPage": "Sürüm sayfasını aç",
+      "tryAgain": "Tekrar dene"
     },
     "confirmation": {
       "settings": {
@@ -768,7 +897,12 @@
       "location": "Konum",
       "postalCode": "Posta kodu",
       "download": "İndirme",
-      "upload": "Yükleme"
+      "upload": "Yükleme",
+      "ping": "Ping",
+      "speed": "Hız",
+      "server": "Sunucu",
+      "country": "Ülke",
+      "tapToTest": "Test için dokunun"
     },
     "windowClosing": {
       "askEachTime": "Her seferinde sor",
@@ -778,8 +912,8 @@
     "qrCode": {
       "copyFullLink": "Tam bağlantıyı kopyala",
       "copied": "Kopyalandı",
-      "localOnlyTitle": "Yalnızca bu cihaz",
-      "localOnlyMessage": "Diğer cihazlar 127.0.0.1 adresine erişemez",
+      "lanLine": "SOCKS5 · yalnızca aynı ağ",
+      "noLocalNetwork": "Yerel ağ bulunamadı",
       "ip": "IP",
       "port": "Port",
       "username": "Kullanıcı adı",
@@ -789,6 +923,71 @@
     },
     "qrScanner": {
       "notFound": "Bu görselde QR kod bulunamadı"
+    },
+    "keepTop": {
+      "title": "Büyük bir abonelik",
+      "description": "Bu profilde $count proxy var. Hepsini çalıştırmak pil, veri ve bellek harcar. Hiddify onları bir kez test edip en hızlı $keep tanesini çalışır bırakabilir, diğerlerini duraklatabilir.",
+      "hint": "İstediğiniz zaman proxy listesinin sonundan hepsini yeniden çalıştırabilirsiniz.",
+      "keeping": "En hızlı $keep çalışır, diğerleri durur",
+      "all": "$count tanesinin hepsi çalışır",
+      "keep": "En hızlı $keep taneyi tut",
+      "useAll": "$count tanesini de kullan",
+      "howMany": "Kaç tanesi çalışsın",
+      "pickByHand": "Proxy'leri kendiniz seçin"
+    },
+    "keepTags": {
+      "title": "Proxy seç",
+      "hint": "Her bağlandığınızda yalnızca bunlar çalışır.",
+      "search": "Ara",
+      "all": "Tümünü seç",
+      "none": "Temizle",
+      "run": "Bu $n proxy'yi kullan",
+      "sort": "Sırala",
+      "sortProfile": "Profil sırası",
+      "sortPing": "Ping",
+      "sortDownload": "İndirme",
+      "sortUpload": "Yükleme",
+      "selectFastest": "En hızlı $n",
+      "statusChosen": "Seçilen",
+      "statusAnswering": "Yanıt veren",
+      "statusPaused": "Duraklatılmış",
+      "paused": "$n proxy duraklatılmış: ping'leri yok ve test edilemezler.",
+      "wake": "Test için hepsini çalıştır",
+      "offline": "Ping'lerini görmek ve test etmek için bağlanın.",
+      "offlineTitle": "Bağlı değil",
+      "shown": "$n gösteriliyor",
+      "noMatch": "Eşleşen proxy yok",
+      "chosenHint": "Seçmek için yukarıdan bir proxy'ye dokunun",
+      "allShown": "Hepsi yukarıdaki listede",
+      "notShown": "Gösterilmeyen:",
+      "protocol": "Protokol",
+      "country": "Ülke",
+      "anyProtocol": "Herhangi bir protokol",
+      "anyCountry": "Herhangi bir ülke",
+      "otherCountries": "Diğerleri"
+    },
+    "localProxy": {
+      "steps": [
+        "Uygulamanın proxy ayarlarını açın",
+        "SOCKS5 veya HTTP seçin",
+        "Aşağıdaki değerleri girin · kopyalamak için dokunun",
+        "Hiddify'ı bağlı tutun"
+      ],
+      "hint": "Proxy modu · nasıl kullanılır",
+      "setPassword": "Parola belirle",
+      "manual": "Manuel",
+      "dontShowAgain": "Bir daha gösterme",
+      "thisDevice": "Bu cihaz",
+      "otherDevices": "Diğer cihazlar",
+      "server": "Sunucu",
+      "noPassword": "Parola ayarlanmadı",
+      "turnOnSharing": "Paylaşımı aç",
+      "copyLink": "Bağlantıyı kopyala",
+      "telegramLink": "Telegram bağlantısı",
+      "fullLink": "Tam bağlantı",
+      "portRange": "1024 ile 65535 arasında bir port kullanın",
+      "passwordTooShort": "En az 4 karakter",
+      "edit": "Düzenle"
     }
   },
   "connection": {

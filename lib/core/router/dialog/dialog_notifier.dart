@@ -26,6 +26,11 @@ import 'package:hiddify/features/app_update/model/remote_version_entity.dart';
 import 'package:hiddify/features/common/qr_code_dialog.dart';
 import 'package:hiddify/features/common/qr_code_scanner_screen.dart';
 import 'package:hiddify/features/crash_report/widget/crash_report_dialog.dart';
+import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/proxy/keep_top/keep_tags_dialog.dart';
+import 'package:hiddify/features/proxy/keep_top/keep_top.dart';
+import 'package:hiddify/features/proxy/keep_top/keep_top_widgets.dart';
+import 'package:hiddify/features/proxy/widget/upload_test_dialog.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -76,8 +81,22 @@ class DialogNotifier extends _$DialogNotifier {
     return await _show<void>(QrCodeDialog(link, title: title, link: link));
   }
 
+  /// [link] only for a profile that has one; [loadConfig] builds its configuration JSON.
+  Future<void> showShareProfile({
+    required String name,
+    required Future<String> Function() loadConfig,
+    String? link,
+  }) async {
+    return await _show<void>(ShareProfileDialog(name: name, link: link, loadConfig: loadConfig));
+  }
+
+  /// [onPick] when the user just picked proxy mode: the dialog then offers not to show again.
+  Future<void> showLocalProxy({bool onPick = false}) async {
+    return await _show<void>(ProxyDialog(onPick: onPick));
+  }
+
   Future<void> showLanSharingQr() async {
-    return await _show<void>(const LanSharingQrDialog());
+    return await _show<void>(const ProxyDialog(otherDevices: true));
   }
 
   Future<void> showOk(String title, String description) async {
@@ -149,6 +168,29 @@ class DialogNotifier extends _$DialogNotifier {
 
   Future<bool> showUnknownDomainsWarning({required String url}) async {
     return await _show<bool?>(UnknownDomainsWarningDialog(url: url)) ?? false;
+  }
+
+  /// How many of a profile's [count] proxies run, the fastest, starting at [keep]: -1 for all of
+  /// them, null when dismissed.
+  Future<int?> showKeepTop({required int count, required int keep}) async {
+    return await _show<int?>(KeepTopDialog(count: count, keep: keep));
+  }
+
+  /// Which of [profile]'s [proxies] run, by their tags; null when dismissed.
+  Future<List<String>?> showKeepTags({required ProfileEntity profile, required List<ProfileProxy> proxies}) async {
+    return await _show<List<String>?>(KeepTagsDialog(profile: profile, proxies: proxies));
+  }
+
+  /// How a speed test of the proxy list runs, saved; true once saved. With [start], its button
+  /// starts the test. [count] is how many proxies the list has, when known.
+  Future<bool> showSpeedTest({int? count, bool start = true}) async {
+    return await _show<SpeedTestTarget?>(SpeedTestDialog(count: count, start: start)) != null;
+  }
+
+  /// The speed test of the proxy picker: of the [shown] proxies or the [chosen] ones; which, once
+  /// saved and to start, or null when dismissed.
+  Future<SpeedTestTarget?> showPickerSpeedTest({required int shown, required int chosen}) async {
+    return await _show<SpeedTestTarget?>(SpeedTestDialog(count: shown, chosen: chosen));
   }
 
   Future<void> showProxyInfo({required OutboundInfo outboundInfo}) async {
@@ -231,6 +273,7 @@ class DialogNotifier extends _$DialogNotifier {
     required List<T> options,
     required String Function(T e) getTitle,
     VoidCallback? onReset,
+    Widget? Function(T e)? getSecondary,
   }) async {
     return await _show<T?>(
       SettingPickerDialog(
@@ -240,6 +283,7 @@ class DialogNotifier extends _$DialogNotifier {
         options: options,
         getTitle: getTitle,
         onReset: onReset,
+        getSecondary: getSecondary,
       ),
     );
   }

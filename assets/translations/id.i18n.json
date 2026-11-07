@@ -122,7 +122,9 @@
         "unsorted": "Default",
         "name": "Berdasarkan abjad",
         "delay": "Berdasarkan latensi",
-        "usage": "Berdasarkan penggunaan"
+        "usage": "Berdasarkan penggunaan",
+        "upload": "Menurut kecepatan unggah",
+        "download": "Menurut kecepatan unduh"
       },
       "ipInfo": {
         "address": "Alamat IP",
@@ -143,11 +145,93 @@
         "searching": "Mencari",
         "reconnecting": "Menghubungkan ulang"
       },
-      "signalStyle": "Gaya sinyal"
+      "signalStyle": "Gaya sinyal",
+      "keepTop": {
+        "picking": "Mencari $keep tercepat dari $count…",
+        "pickingBody": "Semua proxy diuji sekali; lalu hanya yang tercepat tetap berjalan.",
+        "kept": "$n proxy tercepat sedang berjalan",
+        "keptBody": "$paused proxy lainnya dijeda untuk menghemat baterai dan data.",
+        "showAll": "Tampilkan semua $count",
+        "big": "$count proxy sedang berjalan",
+        "bigBody": "Jalankan hanya $keep yang tercepat untuk menghemat baterai dan data.",
+        "keep": "Pertahankan $keep tercepat",
+        "change": "Ubah jumlah",
+        "chosen": "$n proksi pilihan Anda sedang berjalan",
+        "choose": "Pilih"
+      },
+      "upload": {
+        "test": "Uji kecepatan unggah",
+        "failed": "Uji kecepatan tidak dapat dimulai",
+        "hint": "Ketuk: kecepatan unggah · Tahan: kecepatan unduh",
+        "hintBoth": "Ketuk: kedua kecepatan · Tahan: kecepatan unduh"
+      },
+      "speedTest": {
+        "title": "Tes kecepatan",
+        "what": "Yang dites",
+        "download": "Unduh",
+        "upload": "Unggah",
+        "amount": "Jumlah per proksi",
+        "proxies": "Proksi yang dites",
+        "proxiesHint": "Tercepat menurut ping",
+        "all": "Semua",
+        "fastest": "$n tercepat",
+        "through": "$n MB lewat tiap $count tercepat",
+        "throughAll": "$n MB lewat tiap $count proksi",
+        "throughEach": "$n MB lewat tiap proksi",
+        "start": "Mulai tes",
+        "save": "Simpan",
+        "testDownload": "Tes kecepatan unduh",
+        "both": "Keduanya",
+        "bothWays": "unduh dan unggah",
+        "amountHint": "lebih banyak lebih akurat",
+        "clear": "Hapus hasil tersimpan",
+        "cleared": "Dihapus",
+        "which": "Proksi mana",
+        "shown": "Ditampilkan ($n)",
+        "chosen": "Dipilih ($n)"
+      }
     },
     "profiles": {
       "title": "Profil",
       "add": "Tambah profil",
+      "fromPhone": {
+        "title": "Tambah dari ponsel",
+        "scan": "Pindai kode ini dengan kamera ponsel, tempel tautan langganan, lalu kirim.",
+        "sameNetwork": "Ponsel dan TV ini harus terhubung ke jaringan Wi-Fi yang sama.",
+        "noNetwork": "TV ini tidak terhubung ke jaringan lokal. Hubungkan ke Wi-Fi untuk menambahkan tautan dari ponsel.",
+        "locked": "Terlalu banyak kode salah dicoba, jadi ini dikunci. Tutup lalu buka lagi untuk mendapatkan kode baru.",
+        "received": "Diterima dari ponsel",
+        "from": "Dari $address",
+        "page": {
+          "title": "Kirim ke Hiddify di TV",
+          "intro": "Tambahkan langganan ke TV dalam empat langkah cepat, tanpa mengetik dengan remote.",
+          "steps": {
+            "network": {
+              "title": "Gunakan Wi-Fi yang sama",
+              "body": "Ponsel dan TV harus terhubung ke jaringan Wi-Fi yang sama, jika tidak halaman ini tidak bisa menjangkau TV."
+            },
+            "copy": {
+              "title": "Salin tautan",
+              "body": "Salin tautan langganan dari penyedia, atau tautan proxy atau konfigurasi apa pun."
+            },
+            "paste": {
+              "title": "Tempel di sini",
+              "body": "Ketuk kotak di bawah, tempel tautan, lalu ketuk “Kirim ke TV”."
+            },
+            "confirm": {
+              "title": "Konfirmasi di TV",
+              "body": "Tautan muncul di TV. Tekan Impor dengan remote. Tidak ada yang ditambahkan sebelum Anda melakukannya."
+            }
+          },
+          "label": "Tautan langganan",
+          "hint": "Tempel tautan langganan atau konfigurasi",
+          "send": "Kirim ke TV",
+          "sentTitle": "Terkirim ke TV",
+          "sent": "Sekarang tekan Impor di TV untuk menambahkannya. Anda bisa mengirim tautan lain di bawah.",
+          "empty": "Tempel tautan terlebih dahulu.",
+          "footer": "Halaman ini hanya berfungsi saat “Tambah profil” terbuka di TV, dan hanya di jaringan lokal Anda."
+        }
+      },
       "update": "Perbarui profil",
       "viewAllProfiles": "Lihat semua profil",
       "activeProfileName": "Nama profil aktif: “${name}”",
@@ -276,7 +360,10 @@
         "useXrayCoreWhenPossible": "Gunakan xray-core jika memungkinkan",
         "useXrayCoreWhenPossibleMsg": "Gunakan xray-core saat mengurai tautan langganan. Impor ulang langganan untuk mengaktifkan opsi ini.",
         "useSystemTlsEngine": "Gunakan TLS sistem jika tersedia",
-        "useSystemTlsEngineMsg": "Koneksi tanpa sidik jari TLS menggunakan TLS macOS, iOS, atau Windows setelah lolos pemeriksaan di perangkat ini; jika tidak, koneksi akan terlihat seperti Chrome."
+        "useSystemTlsEngineMsg": "Koneksi tanpa sidik jari TLS menggunakan TLS macOS, iOS, atau Windows setelah lolos pemeriksaan di perangkat ini; jika tidak, koneksi akan terlihat seperti Chrome.",
+        "uploadTestSize": "Ukuran uji unggah",
+        "megabytes": "$n MB",
+        "speedTest": "Tes kecepatan"
       },
       "routing": {
         "title": "Perutean",
@@ -497,13 +584,29 @@
           "system": "Sistem",
           "gvisor": "gVisor"
         },
-        "mixedPort": "Port campuran",
+        "mixedPort": "Port proksi (SOCKS5/4, HTTP)",
         "tproxyPort": "Port proxy transparan",
         "directPort": "Port langsung",
         "redirectPort": "Port pengalihan",
         "lanSharing": "Berbagi VPN yang aman",
+        "connectionSharing": "Berbagi koneksi",
         "qrCode": "Kode QR",
-        "lanQrSubtitle": "Proxy SOCKS5"
+        "closedInVpn": "tertutup di mode VPN, kecuali dibagikan",
+        "proxySecret": "Rahasia proksi",
+        "noSecret": "Tanpa rahasia: aplikasi atau perangkat apa pun yang mencapai port dapat memakainya",
+        "generateSecret": "Buat baru",
+        "removeSecret": "Hapus rahasia?",
+        "removeSecretMsg": "Tanpa rahasia, aplikasi apa pun di perangkat ini, dan perangkat apa pun di jaringan saat berbagi, dapat memakai proksi tanpa pengguna atau kata sandi. Risiko ditanggung sendiri.",
+        "localProxy": "Proksi lokal",
+        "localProxyInVpn": "Tetap terbuka dalam mode VPN",
+        "localProxyInVpnHint": "Aplikasi sudah memakai VPN; hanya untuk aplikasi yang diatur ke proksi",
+        "localProxyAuth": "Wajibkan kata sandi",
+        "localProxyAuthHint": "Sebagian aplikasi, seperti peramban, tidak bisa mengirim kata sandi SOCKS",
+        "notAsSystemProxy": "Tidak diminta sebagai proksi sistem, yang tidak bisa mengirimnya",
+        "lanGroup": "Berbagi di jaringan lokal",
+        "lanSharingPort": "Port berbagi",
+        "otherPorts": "Port lain",
+        "closedInVpnLocal": "tertutup dalam mode VPN"
       },
       "tlsTricks": {
         "title": "Trik TLS",
@@ -553,6 +656,7 @@
         "warp": {
           "missingConfig": "Konfigurasi WARP hilang",
           "licenseKey": "Kunci lisensi",
+          "tunnel": "Terowongan",
           "cleanIp": "IP bersih",
           "port": "Port",
           "noise": {
@@ -569,7 +673,26 @@
               "dnsCloudflare": "DNS (cloudflare.com)",
               "sip": "SIP (panggilan VoIP)",
               "stun": "STUN (panggilan video)"
-            }
+            },
+            "title": "Derau WireGuard"
+          },
+          "endpoint": "Titik akhir",
+          "endpointSources": {
+            "profile": "Ditetapkan Cloudflare",
+            "scan": "Pindai",
+            "custom": "Kustom"
+          },
+          "customServer": "Alamat",
+          "mtu": "MTU",
+          "customized": "Disesuaikan",
+          "scanner": {
+            "title": "Pemindai"
+          },
+          "masque": {
+            "title": "MASQUE"
+          },
+          "awg": {
+            "title": "AmneziaWG"
           }
         },
         "psiphon": {
@@ -671,7 +794,13 @@
       "msg": "Versi baru @:common.appTitle tersedia. Perbarui sekarang?",
       "currentVersion": "Versi saat ini",
       "newVersion": "Versi baru",
-      "updateNow": "Perbarui sekarang"
+      "updateNow": "Perbarui sekarang",
+      "downloading": "Mengunduh…",
+      "installing": "Memulai pemasang…",
+      "allowInstall": "Izinkan Hiddify memasang aplikasi di pengaturan yang terbuka, lalu coba lagi.",
+      "failed": "Pembaruan tidak dapat dipasang.",
+      "openPage": "Buka halaman rilis",
+      "tryAgain": "Coba lagi"
     },
     "confirmation": {
       "settings": {
@@ -768,7 +897,12 @@
       "location": "Lokasi",
       "postalCode": "Kode pos",
       "download": "Unduh",
-      "upload": "Unggah"
+      "upload": "Unggah",
+      "ping": "Ping",
+      "speed": "Kecepatan",
+      "server": "Server",
+      "country": "Negara",
+      "tapToTest": "Ketuk untuk menguji"
     },
     "windowClosing": {
       "askEachTime": "Tanyakan setiap kali",
@@ -778,8 +912,8 @@
     "qrCode": {
       "copyFullLink": "Salin tautan lengkap",
       "copied": "Disalin",
-      "localOnlyTitle": "Hanya perangkat ini",
-      "localOnlyMessage": "Perangkat lain tidak bisa menjangkau 127.0.0.1",
+      "lanLine": "SOCKS5 · hanya jaringan yang sama",
+      "noLocalNetwork": "Jaringan lokal tidak ditemukan",
       "ip": "IP",
       "port": "Port",
       "username": "Nama pengguna",
@@ -789,6 +923,71 @@
     },
     "qrScanner": {
       "notFound": "Tidak ada kode QR di gambar ini"
+    },
+    "keepTop": {
+      "title": "Langganan besar",
+      "description": "Profil ini berisi $count proxy. Menjalankan semuanya menghabiskan baterai, data, dan memori. Hiddify dapat mengujinya sekali, menjalankan $keep yang tercepat, dan menjeda sisanya.",
+      "hint": "Anda bisa menjalankan semuanya lagi kapan saja dari akhir daftar proxy.",
+      "keeping": "$keep tercepat berjalan, sisanya dijeda",
+      "all": "Semua $count berjalan",
+      "keep": "Pertahankan $keep tercepat",
+      "useAll": "Gunakan semua $count",
+      "howMany": "Berapa yang tetap berjalan",
+      "pickByHand": "Pilih proksi sendiri"
+    },
+    "keepTags": {
+      "title": "Pilih proksi",
+      "hint": "Hanya ini yang berjalan, setiap kali tersambung.",
+      "search": "Cari",
+      "all": "Pilih semua",
+      "none": "Hapus",
+      "run": "Gunakan $n ini",
+      "sort": "Urutkan",
+      "sortProfile": "Urutan profil",
+      "sortPing": "Ping",
+      "sortDownload": "Unduh",
+      "sortUpload": "Unggah",
+      "selectFastest": "$n tercepat",
+      "statusChosen": "Dipilih",
+      "statusAnswering": "Merespons",
+      "statusPaused": "Dijeda",
+      "paused": "$n proksi dijeda: tidak ada ping dan tidak bisa dites.",
+      "wake": "Jalankan semua untuk dites",
+      "offline": "Sambungkan untuk melihat ping dan mengetesnya.",
+      "offlineTitle": "Tidak tersambung",
+      "shown": "$n ditampilkan",
+      "noMatch": "Tidak ada proksi yang cocok",
+      "chosenHint": "Ketuk proksi di atas untuk memilihnya",
+      "allShown": "Semuanya ada di daftar di atas",
+      "notShown": "Tidak ditampilkan:",
+      "protocol": "Protokol",
+      "country": "Negara",
+      "anyProtocol": "Protokol apa pun",
+      "anyCountry": "Negara apa pun",
+      "otherCountries": "Lainnya"
+    },
+    "localProxy": {
+      "steps": [
+        "Buka pengaturan proksi aplikasi",
+        "Pilih SOCKS5 atau HTTP",
+        "Masukkan nilai di bawah · ketuk untuk menyalin",
+        "Biarkan Hiddify terhubung"
+      ],
+      "hint": "Mode proksi · cara memakai",
+      "setPassword": "Atur kata sandi",
+      "manual": "Manual",
+      "dontShowAgain": "Jangan tampilkan lagi",
+      "thisDevice": "Perangkat ini",
+      "otherDevices": "Perangkat lain",
+      "server": "Server",
+      "noPassword": "Belum ada kata sandi",
+      "turnOnSharing": "Aktifkan berbagi",
+      "copyLink": "Salin tautan",
+      "telegramLink": "Tautan Telegram",
+      "fullLink": "Tautan lengkap",
+      "portRange": "Gunakan port 1024 sampai 65535",
+      "passwordTooShort": "Minimal 4 karakter",
+      "edit": "Edit"
     }
   },
   "connection": {

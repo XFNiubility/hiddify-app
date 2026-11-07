@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/model/directories.dart';
+import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/dialog/widgets/admin_bg_service_dialogs.dart';
@@ -18,6 +19,7 @@ import 'package:hiddify/hiddifycore/core_interface/core_interface_macos.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pbenum.dart' as hcore;
 import 'package:hiddify/hiddifycore/hiddify_core_service.dart';
 import 'package:hiddify/singbox/model/core_status.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/singbox/model/singbox_config_option.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -195,6 +197,8 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
   Future<void> _prepareMacosAdminBgService(ProfileEntity profile, SingboxConfigOption options) async {
     final core = singbox.core;
     if (core is! CoreInterfaceMacOS) return;
+    // the App Store build never asks for root, whatever the native side reports
+    if (Release.read() == Release.appStore) return;
     // Network Extension builds do not use the admin password install path.
     if (!core.tunnelServiceAvailable || !options.enableTun) return;
 
@@ -282,8 +286,10 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
             (overridedOptions) => TaskEither.tryCatch(() async {
               if (!overridedOptions.chainStatus.isOff()) {
                 final isWarpLicenseAgreed = ref.read(Preferences.warpConsentGiven) == true;
-                final isWarpEnabled =
-                    overridedOptions.unblocker.mode.isWarp() || overridedOptions.extraSecurity.mode.isWarp();
+                final isWarpEnabled = [
+                  overridedOptions.unblocker.mode,
+                  overridedOptions.extraSecurity.mode,
+                ].any((key) => ChainMode.fromKey(key)?.isWarp() ?? false);
                 if (!isWarpLicenseAgreed && isWarpEnabled) {
                   final isAgreed = await ref.read(dialogNotifierProvider.notifier).showWarpLicense();
                   if (isAgreed == true) {
@@ -295,8 +301,10 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
                 }
 
                 final isPsiphonLicenseAgreed = ref.read(Preferences.psiphonConsentGiven) == true;
-                final isPsiphonEnabled =
-                    overridedOptions.unblocker.mode.isPsiphon() || overridedOptions.extraSecurity.mode.isPsiphon();
+                final isPsiphonEnabled = [
+                  overridedOptions.unblocker.mode,
+                  overridedOptions.extraSecurity.mode,
+                ].any((key) => ChainMode.fromKey(key)?.isPsiphon() ?? false);
                 if (!isPsiphonLicenseAgreed && isPsiphonEnabled) {
                   final isAgreed = await ref.read(dialogNotifierProvider.notifier).showPsiphonLicense();
                   if (isAgreed == true) {

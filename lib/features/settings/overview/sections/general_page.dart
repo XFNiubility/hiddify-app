@@ -11,6 +11,7 @@ import 'package:hiddify/features/common/general_pref_tiles.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface_mobile.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:humanizer/humanizer.dart';
@@ -76,13 +77,15 @@ class GeneralPage extends HookConsumerWidget {
             ),
           ],
           if (PlatformUtils.isAndroid) const BatteryOptimizationWidget(),
-          SwitchListTile.adaptive(
-            title: Text(t.pages.settings.general.memoryLimit),
-            subtitle: Text(t.pages.settings.general.memoryLimitMsg),
-            secondary: const Icon(Icons.memory_rounded),
-            value: !ref.watch(Preferences.disableMemoryLimit),
-            onChanged: (value) async => await ref.read(Preferences.disableMemoryLimit.notifier).update(!value),
-          ),
+          // iOS ends a VPN that outgrows its memory budget: the limit is always on there
+          if (!PlatformUtils.isIOS)
+            SwitchListTile.adaptive(
+              title: Text(t.pages.settings.general.memoryLimit),
+              subtitle: Text(t.pages.settings.general.memoryLimitMsg),
+              secondary: const Icon(Icons.memory_rounded),
+              value: !ref.watch(Preferences.disableMemoryLimit),
+              onChanged: (value) async => await ref.read(Preferences.disableMemoryLimit.notifier).update(!value),
+            ),
           // Debug mode and log level moved to the Logs page. Both decide how
           // much is recorded, which is only meaningful next to the logs
           // themselves — and next to the filters that decide what is shown.
@@ -112,6 +115,26 @@ class GeneralPage extends HookConsumerWidget {
                   await ref.read(ConfigOptions.urlTestInterval.notifier).update(Duration(minutes: value.toInt()));
                 }),
           ),
+          // how a speed test of the proxy list runs: download or upload, how much, how many proxies
+          ListTile(
+            title: Text(t.pages.settings.general.speedTest),
+            subtitle: Text(
+              [
+                switch (ref.watch(ConfigOptions.speedTestDirection)) {
+                  SpeedTestDirection.download => t.pages.proxies.speedTest.download,
+                  SpeedTestDirection.upload => t.pages.proxies.speedTest.upload,
+                  SpeedTestDirection.both => t.pages.proxies.speedTest.both,
+                },
+                t.pages.settings.general.megabytes(n: ref.watch(ConfigOptions.uploadTestSize)),
+                if (ref.watch(ConfigOptions.uploadTestLimit) case final limit when limit > 0)
+                  t.pages.proxies.speedTest.fastest(n: limit)
+                else
+                  t.pages.proxies.speedTest.all,
+              ].join(' · '),
+            ),
+            leading: const Icon(Icons.speed_rounded),
+            onTap: () => ref.read(dialogNotifierProvider.notifier).showSpeedTest(start: false),
+          ),
           ValuePreferenceWidget(
             value: ref.watch(ConfigOptions.clashApiPort),
             preferences: ref.watch(ConfigOptions.clashApiPort.notifier),
@@ -120,13 +143,6 @@ class GeneralPage extends HookConsumerWidget {
             validateInput: isPort,
             digitsOnly: true,
             inputToValue: int.tryParse,
-          ),
-          SwitchListTile.adaptive(
-            title: Text(t.pages.settings.general.useXrayCoreWhenPossible),
-            subtitle: Text(t.pages.settings.general.useXrayCoreWhenPossibleMsg),
-            secondary: const Icon(Icons.extension_rounded),
-            value: ref.watch(ConfigOptions.useXrayCoreWhenPossible),
-            onChanged: ref.read(ConfigOptions.useXrayCoreWhenPossible.notifier).update,
           ),
           if (Platform.isMacOS || Platform.isIOS || Platform.isWindows)
             SwitchListTile.adaptive(

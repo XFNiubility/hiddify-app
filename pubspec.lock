@@ -514,10 +514,9 @@ packages:
   flutter_animate:
     dependency: "direct main"
     description:
-      name: flutter_animate
-      sha256: "7befe2d3252728afb77aecaaea1dec88a89d35b9b1d2eea6d04479e8af9117b5"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/flutter_animate"
+      relative: true
+    source: path
     version: "4.5.2"
   flutter_displaymode:
     dependency: "direct main"
@@ -833,7 +832,7 @@ packages:
     source: hosted
     version: "1.6.0"
   http2:
-    dependency: "direct overridden"
+    dependency: "direct dev"
     description:
       name: http2
       sha256: "480bf904908b4e4ec4fac8117f69f5ff54cf48c12b1761f0a192e1e10196ee7b"

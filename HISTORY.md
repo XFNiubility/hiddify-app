@@ -1,7 +1,575 @@
 # Changelog
 
 
-## 5.4.0 (2026-11-01)
+## 5.5.5 (2026-11-04)
+
+#### Other
+
+* Feat(proxy): the proxy details show the home card's proxies live and fade cached results. 
+  _The details of the home card's server or chain hop, which the proxies list may not
+hold, now follow the main list, so a test's result shows. A ping or speed from an
+earlier run is faded, as in the proxy list, until a test of this run replaces it._
+
+* Feat(profiles): a share dialog with the link's QR code and the config as a file. 
+  _The share menu becomes one dialog: the subscription link with its QR code, and the
+configuration JSON to copy, share or save. The file is shared as text/plain, so apps
+that do not take JSON, Telegram among them, are offered on Android. A file name with a
+space or a non-ASCII letter is shared from its real path._
+
+* Feat(proxy): add alternating display for slow connection status. 
+
+* Merge pull request #2440 from veto9292/fix/next-release. 
+  _feat(proxy): one sharing dialog, LAN sharing toggle, live chain hop state_
+
+* Feat(settings): a tap on the sharing row opens the proxy dialog. 
+  _The row no longer turns sharing on or off; its switch does._
+
+* Feat(proxy): no Turn off in the dialog, no QR button while sharing is off. 
+  _The dialog only turns LAN sharing on; turning it off is the sharing row's switch, whose QR
+button shows only while sharing is on._
+
+* Refactor(proxy): drop the translated Turn off text. 
+
+* Refactor(proxy): drop the Turn off text. 
+
+* Feat(settings): Connection sharing row in quick settings. 
+  _In quick settings the LAN sharing row is titled Connection sharing, with no leading icon.
+Its QR button, on a tonal background, shows whether sharing is on or off and opens the
+proxy dialog on Other devices; the switch turns sharing on or off._
+
+* Feat(settings): translate the Connection sharing row's text. 
+
+* Feat(settings): text for the Connection sharing row of quick settings. 
+
+* Style(proxy): Turn off in the look of Turn on sharing. 
+
+* Feat(proxy): turn LAN sharing on and off in the Other devices tab. 
+  _Showing Other devices no longer turns sharing on. While it is off the tab shows its content
+faint, under Turn on sharing; while it is on, Turn off sits beside Close._
+
+* Feat(proxy): translate the texts to turn LAN sharing on and off. 
+
+* Feat(proxy): texts to turn LAN sharing on and off in the proxy dialog. 
+
+* Refactor(home): show the hop's label as the core sends it. 
+  _The core now leaves out the state's emoji itself._
+
+* Feat(home): show the hop's live state while it sets up. 
+  _While the core still sets the hop up, the chain row shows what it runs and
+what it is doing in place of the IP's placeholder, and an animated icon in
+place of the flag's: an hourglass while it connects, a clock when it is
+slow, a fingerprint while WARP registers, a magnifier while it searches,
+arrows while it reconnects. Once the core says ready, the flag and the IP
+wait for the first ping as before._
+
+* Feat(proxy): turn LAN sharing on when Other devices is shown. 
+  _Opening the dialog on Other devices, or switching to it, turns sharing with other devices
+on, so the side is never off and its off card is gone._
+
+* Refactor(proxy): drop the translated texts of the sharing-off card. 
+
+* Refactor(proxy): drop the texts of the sharing-off card. 
+
+* Fix(proxy): in VPN mode show only Other devices, never This device off. 
+  _In VPN mode this device's apps already go through the VPN, so the dialog shows only the
+Other devices side, without the tabs. This device has no off state; only sharing with
+other devices can be off._
+
+* Feat(proxy): say a side of the proxy dialog is off, with Turn on. 
+  _This device is off in VPN mode while the local port is not kept open; Other devices is off
+while LAN sharing is. Such a tab shows only a card with Currently off and Turn on, and Close._
+
+* Feat(proxy): translate the texts for a side that is off. 
+
+* Feat(proxy): texts for a proxy dialog side that is off. 
+
+* Feat(proxy): the Other devices tab works like This device. 
+  _The LAN sharing tab gets what This device has: copyable IP, port, user and password, the port
+and the password edited in place, a warning with Set password while the network's port has no
+password, and Copy link with Telegram and full links. LAN only and SOCKS5 proxy become one line;
+on no local network the code's place says so. Both tabs share one frame and one set of fields,
+and the QR dialog keeps only what the profile share needs._
+
+* Feat(proxy): translate the Other devices tab texts. 
+
+* Feat(proxy): texts for the Other devices tab of the proxy dialog. 
+
+* Style(proxy): space the This device buttons like the Other devices tab. 
+
+* Feat(proxy): one dialog for this device and other devices. 
+  _The local proxy dialog becomes the This device tab: setup steps, copyable server, port and
+password, the port and password edited in place, a warning while no password is asked, and
+Copy link with Telegram and full links. LAN sharing is the Other devices tab, unchanged._
+
+* Feat(proxy): translate the This device tab texts. 
+
+* Feat(proxy): texts for the This device tab of the proxy dialog. 
+
+* Refactor(home): drop the hop's name after its IP in the chain row. 
+  _The row shows the IP or the state and the chain chip again; a tap still shows
+the hop's proxy info and a long press its configuration._
+
+* Feat(chain): the unblocker icon as a double door the traffic passes. 
+  _Seen from above: three dots run into the shut door and wait, it opens, they
+drive through one after another, and it shuts again. Replaces the opening
+door on the proxy card, the chain timeline, the connection check and the
+home badge; shut and empty while the unblocker is off, waits or fails._
+
+* Feat(notification): manage service notification lifecycle with active state and synchronization. 
+
+* Chore(core): hiddify-core with display types that show why a proxy failed. 
+
+* Feat(json-editor): a soar outbound template. 
+  _The JSON editor offers the soar outbound (Soar DNS tunnel) beside dnstt and
+masterdns, with "auto" resolvers, which run Soar's resolver discovery._
+
+* Chore(core): hiddify-core with Soar, soar:// links and shared resolver discovery. 
+
+* Feat(settings): a default proxy for the select group. 
+  _Until the user picks a proxy, the select group starts on the balancer;
+the routing options now offer the lowest ping and the profile's first
+proxy as well (default-proxy in hiddify-core)._
+
+* Feat(proxies): one ping per proxy, a steady lowest-delay pick, and cached pings that only sort. 
+  _hiddify-core with one URL test per proxy at a time, a lowest-delay pick
+that stays 30 s after a switch, a relative tolerance, stable proxy tags
+across subscription updates, and the MONITORING and LOWEST log lines.
+
+A ping cached from the previous run is not shown and decides nothing;
+the proxy list sorts by sort_delay, which carries it until the real
+ping arrives, while url_test_delay stays 0 for it.
+
+On Android the VPN service shares the app's process, so a log listener
+on each gRPC channel logged every core line twice; the second listener
+is skipped there.
+
+The Windows installer launches the app through the shell and clears a
+"run as administrator" compatibility layer left on its path, which made
+the launch at the end of Setup fail with error 740._
+
+* Feat(settings): "Use xray-core when possible" is off and hidden. 
+  _The switch is gone from the general settings. A value saved before is
+ignored: the core gets false, and subscriptions are downloaded with the
+plain HiddifyNext user agent, never HiddifyNextX. The preference stays
+stored so old backups still import._
+
+* Fix(routing): the system services rule is off by default. 
+  _Apple, Microsoft, Android and Linux services go through the proxy unless
+the user turns the rule on. A list already saved keeps its switch._
+
+* Feat(routing): the system services rule follows the platform. 
+  _Apple services on iOS and macOS, Microsoft services on Windows, Android
+services and push on Android, distro updates on Linux. A list saved under
+the old builtin:appleDirect name keeps its rule._
+
+* Chore(core): hiddify-core with Fake DNS, WARP and MASQUE fixes. 
+  _- fix(config): Fake DNS no longer stops the core at Connecting
+- fix(proxies): the main list shows a spreading balancer's fastest member
+- hiddify-sing-box: Fake DNS fall-through logged at debug, a WARP restart during a network change
+  no longer crashes, why a proxy failed is kept, the masque outbound no longer registers WARP
+  devices (the warp endpoint does, and takes a link's device)
+- ray2sing: masque:// links to WARP are warp endpoints with mode masque; h2=1 and publicKey read
+- feat(hcore): OutboundInfo.error_
+
+* Feat(proxy): the proxy details say why it failed. 
+  _A long press on a proxy shows its details; a failed proxy now has a "Why it failed" box with what
+the core reports (OutboundInfo.error, hiddify-core a5a5091): the error of its last test, or why it
+is not ready, such as a refused WARP registration or a MASQUE tunnel that does not connect. The
+text can be selected and copied.
+
+hcore.proto regenerated for the new field._
+
+* Feat(settings): Extra Security WARP offers its tunnel, licence and MTU only. 
+  _Extra Security is a privacy layer behind the user's pick, not a way past filtering. Its WARP no
+longer shows the endpoint, the custom server and port, MASQUE and AmneziaWG settings, and no
+longer sends them: it takes the endpoint Cloudflare assigned and the core's MASQUE and AmneziaWG
+defaults, so a value saved before does not stay in effect unseen. The Unblocker keeps them all._
+
+* Fix(core): a reconnect is not logged as a stream error. 
+  _Every disconnect and reconnect logged "Stream error: gRPC Error (code: 2) HTTP/2 error: Connection
+is being forcefully terminated (errorCode: 10)". Closing the VPN closes the core and its gRPC
+server, which cuts the log stream: the same normal end as a core that is not running, which was
+already logged at debug. Any other stream error is still an error, and the stream is armed again
+at the next start as before.
+
+Tested: grpc_errors_test with the error grpc-dart raises; on the Android emulator, a disconnect no
+longer logs it. http2 is a dev dependency for the test._
+
+* Ci(virustotal): skip the IPA and show the counts as static badges. 
+  _The release badges showed "Error 429": the live badge service asks VirusTotal with one shared key,
+which is over its quota for every file. The scan job reads each file's count with our key anyway;
+it now writes it into the notes as a static shields.io badge (green at 0, yellow up to 3, red
+above, "scanning" until VirusTotal has a result), and a rewrite of the download table keeps them.
+
+VirusTotal rejected the IPA with HTTP 409, which failed the whole scan step: it is no longer sent,
+and its row shows "-". The AppImage tar.gz is scanned now. One scan runs at a time (the draft and
+the release scan shared the key's quota), a rejected file no longer stops the report and the
+badges, and the report looks once more for files still being analysed.
+
+Tested: prepare_release_notes.py on the v5.5.1 body with sample counts, and the rewrite after the
+Store-signed MSIX keeps them._
+
+
+
+## v5.5.0 (2026-11-03)
+
+#### Other
+
+* Fix(profiles): list the profiles when one of them can not be read. 
+  _One profile saved with headers or choices this version can not read, or a
+subscription saved without its URL, failed the whole list: the subscriptions
+page showed an unexpected error and the log only "error getting profiles".
+Such data is now left out with a warning, a profile that still fails is left
+out of the list alone, and the log names the error.
+
+Fixes #2422_
+
+* Chore(core): hiddify-core with the Docker image fixed. 
+  _The image runs the binary the release archives hold now (hiddify-core issue #166)._
+
+* Chore(core): hiddify-core without the OpenWrt feed releases. 
+  _The core's releases no longer publish one feed release per OpenWrt architecture; the packages are in each version release._
+
+* Feat(proxies): speeds kept between runs, sorting by them, and a clearer proxy picker. 
+  _Speeds
+- Upload and download results from an earlier run show faded until tested again;
+  the speed test dialog clears them all ("Clear saved results").
+- Sort by upload or download speed: this run's results, then the earlier ones,
+  then the other speed, then ping.
+- The speed chip shows the gauge only before a test; once tested, the arrows say
+  which is which; both failed is one gauge with a cross, and a failed ping with
+  both speeds failed shows the ping's cross alone. On a small screen the home card
+  shows the two speeds on two lines.
+- A tap tests the upload, or both when both show; a long press the download, on
+  the home card too. The speed test button always opens the dialog first, which
+  says more data is more accurate.
+
+Proxy picker and big profiles
+- The picker's rows only choose; its ping and speed test buttons test the shown or
+  chosen proxies. Proxies the core does not run show no ping. Not connected, a
+  card says so, with a connect button.
+- Filters: chosen (on by default: every chosen proxy in the list), answering,
+  paused, protocol and country, with the countries of fewer than 5 proxies under
+  one "Others" entry; the chosen ones the filters hide stay in a tray at the
+  bottom. "Use these N" applies the choice.
+- The card at the end of a big profile's list keeps the fastest N from one button,
+  N picked from its chevron, and lays out in two columns when there is room.
+- The proxy list has two columns on a usual window, so the names show.
+
+- hiddify-core: speeds kept between runs and ClearSpeedTests; a spreading balancer
+  stands for its fastest proxy._
+
+* Feat(proxies): choose the proxies a big profile runs, and a speed test of both ways. 
+  _Choose proxies: besides keeping the fastest N, the user picks the proxies that run
+on every connect; their tags are kept in the profile's user override (keepTags)
+and go to the core as keep-tags.
+- The picker lists the profile's proxies as the proxy page does, with ping and
+  speeds, sorts them by ping, download or upload, and filters them by status,
+  protocol and country, each filter counting with the others in place.
+- Chosen proxies stay in the list by default; with that filter off, those the
+  filters hide stay in sight in a tray at the bottom.
+- Its ping and speed test buttons test the shown or the chosen proxies; a tap on a
+  row only chooses it. Paused proxies can be run for the while, and go back as
+  they were when the picker is dismissed.
+
+Speed test: a long press on the speed test button sets it up: download, upload or
+both, how much through each proxy, and how many of the fastest, with the data it
+takes. A proxy row shows both speeds; a tap tests the upload, a long press the
+download. The upload test warning is gone: the dialog shows the data first.
+
+- hiddify-core: keep-tags, keep-top keeps exactly the count asked for and shrinks
+  without new pings, and one proxy's tests take turns._
+
+* Fix(core): start the core again once the stop before it is done. 
+  _A restart (as when the IPv6 mode changes and a hot reload can not apply it) sent
+Stop and then Start at once. The core answers Stop at once and stops in the
+background, and refused the Start while still stopping (INSTANCE_NOT_STOPPED),
+which showed as an unexpected failure with the connection down. The start is now
+asked again until the core has stopped, for 10 seconds at most, on macOS and on
+Windows and Linux._
+
+* Feat(inbound): a local proxy without a password, and its own port for LAN sharing. 
+  _Browsers can not send a SOCKS5 password, nor can a system proxy, so the local port
+asks for none unless the user turns on "Require password"; the switch says which
+apps can not use it then. In VPN mode the local port stays closed unless "Keep open
+in VPN mode" is on. Sharing with the local network gets a port of its own (12338 by
+default), always asking for the secret.
+
+- Inbound settings in groups: local proxy, local network sharing, other ports;
+  tproxy, redirect and direct off by default and only where the platform has them.
+- A generated secret is 8 characters in parts of four joined by a dash, hidden
+  until asked for; it can be changed beside the password, or removed at the
+  user's own risk.
+- Proxy mode is manual: picking it shows how to point apps at the local proxy,
+  with a "Don't show again"; a small "Manual" tab beside quick settings shows it
+  again.
+- The Mac App Store build starts in VPN mode and offers no system proxy.
+- The app's own requests send the secret only when the local port asks for it.
+- hiddify-core: the ports above._
+
+* Feat(proxies): a gauge icon for the upload speed test. 
+  _The upload test button, the speed chip and the upload size setting show a
+speedometer, which reads as a speed test better than an upload arrow._
+
+* Feat(profile): stop updating a subscription by itself after 3 days of failures. 
+  _A subscription whose update has failed for 3 days is left out of the automatic
+updates, so a dead link no longer retries on every round. A manual update still
+runs, and a profile that updated since the failures began counts as recovered._
+
+* Fix(ios): the packet tunnel always runs with the memory limit. 
+  _iOS ends a packet tunnel that outgrows its memory budget. The core turned
+the limit on at each start, but the extension set it from the app's setting
+while it waited for the first start, so the limit could be off until then.
+The extension now always turns it on, and the setting, which could not turn
+it off on iOS, is hidden there._
+
+* Fix(macos): the App Store build leaves out all that asks for root. 
+  _The App Store build could not reach the administrator prompt, but the code
+was in its binary. A Swift condition set only by AppStore.xcconfig now leaves
+out the AppleScript prompt that installs the VPN service and the command line
+modes the root service runs the app in, and the app does not start the
+service's install flow in an App Store build either._
+
+* Feat(update): download and install updates outside a store. 
+  _The update check never found a 5.x release: it skipped GitHub pre-releases,
+and the workflow marks every release as one. It now reads the version from
+the tag (skipping the rolling "draft" release), takes the newest, and runs
+once a day on its own outside a store, with an option to ignore a release.
+
+"Update now" downloads the file for this install and starts it: the APK for
+the device's ABI through the system installer, the Windows setup, the
+AppImage in place of the running one, the Debian package, or the macOS disk
+image. The portable zip and other installs open the release page, as does a
+failed update.
+
+Store builds never offer a download: every iOS build and an MSIX package now
+count as store builds, the store prompt runs only where its lookup works
+(Google Play, iOS), and the Google Play build does not ask to install
+packages._
+
+* Feat(chain): edit the WARP settings of each chain hop. 
+  _Each hop now edits what the core reads for its WARP peer: where the peer
+comes from (the endpoint Cloudflare assigned, a scan, or a custom address),
+the MTU, and the scanner, MASQUE and AmneziaWG tunnels, folded away as
+sections with the WireGuard noise. The blocks are kept as JSON, and one that
+changes nothing is not sent, so the core keeps its defaults.
+
+Extra security dials through the user's pick, so it never scans; the custom
+address is the WireGuard peer, so the MASQUE tunnel does not show it. An
+older unblocker clean IP that also chose the source moves to the source:
+an address to the custom endpoint, auto/default/random to the scan.
+
+Based on hiddify/hiddify-app#2424, fitted to the tunnel choice the app has
+instead of splitting the chain mode._
+
+* Feat(proxies): keep the fastest proxies of a big profile, and test their speed. 
+  _Keep top: a profile with more than 20 proxies asks once, when it is added,
+chosen or connected, how many of its fastest proxies run (3 to 30, or all).
+The answer is kept in the profile's user override; a subscription's
+keep-top header decides when the user has not. At the end of the proxy list
+a card shows how many run, finds the fastest while their first pings come
+in, and offers to change how many or to run them all again.
+
+Speed: the upload button over the ping button tests every proxy in the
+list; above the settings' limit (20) it asks first, showing the data it
+would use, and offers to keep and test only that many fastest. Each row
+shows its upload speed under the ping; a long press on the ping, or a tap
+on the speed, tests it again. The home card shows the selected proxy's
+upload speed, also tested by a long press on the ping under the connect
+button. A long press on any upload button sets how much a test moves:
+1, 5, 10 or 50 MB, also in the general settings.
+
+Proxy info: the dialog shows the flag, the type and status, then the IP,
+country, organization and server, and the ping, upload and download speed,
+each tested on a tap and followed live._
+
+* Build: hiddify-core with keep-top and the upload and download speed tests. 
+
+* Fix(ui): no duplicate keys when a switcher's child comes back fast. 
+  _AnimatedSwitcher keys each child's transition by the child's own key, so a
+child that comes back while its earlier self still fades out twice (a flag,
+its cached look and back, faster than the fade) leaves two children under
+one key in its stack, and the tree breaks with "Duplicate keys found". The
+uniqueKeysLayout drops the earlier one at once instead._
+
+* Fix(workflow): update MSSTORE_PRODUCT_ID reference to use secrets. 
+
+* Build: hiddify-core with the benchmark's query sizes and parallel runs. 
+
+* Build: hiddify-core with the bounded quick check. 
+
+* Build: hiddify-core with the smart pool tuned past MasterDnsVPN's balancer. 
+
+* Build: hiddify-core with the libxray share link fix and the DNS tunnel benchmark. 
+  _- fd05708: the core builds again with libxray v1.261031.0, whose share link
+  converter takes a key and returns JSON
+- f17a10c: hiddify-sing-box e33a72aed, with the MasterDnsVPN fix for
+  resolvers on one IP and several ports, smart_pool.duplicate and the DNS
+  tunnel benchmark_
+
+* Fix(settings): pickers no longer choose on the TV remote's arrow keys. 
+  _The choice dialogs (language, theme, region and the other settings lists,
+the routing radio lists, the action at closing) are RadioGroups, which
+select the next or previous radio on an arrow key. As they close on a
+selection, the first press of a TV remote's down key picked the next item
+and closed the dialog, so nothing further down could be chosen. Inside
+them the arrows now move the focus, and OK, Enter or a tap selects; the
+focus starts on the current choice.
+
+The language list puts Persian second, after English, with the lion and
+sun flag the region row shows for Iran, also on the language row while
+Persian is selected._
+
+* Fix(home): a smaller connect button on short screens, and no grey focus. 
+  _On a TV, a phone held sideways or a small window the connect button and
+its light took most of the height. The button is now drawn at full size
+and scaled as a whole, light and badges included: full size from 860
+logical pixels of height, down to 65% at 640 and below (about 115 px on
+a 720 px Android TV).
+
+Its ink used an opaque grey as the focus color, so a TV remote's focus
+or pointer covered the whole face and hid the logo. Hover and press now
+only tint the face lightly, and focus shows a ring round the button._
+
+* Feat(profiles): add a link to Android TV from a phone on the same Wi-Fi. 
+  _On Android TV, the add profile sheet shows a QR code in place of the camera scanner. A phone
+that scans it opens a small page served by the TV on the local network, with the steps to
+follow, pastes a subscription link and sends it; the TV shows what arrived and imports it only
+when the user presses Import with the remote.
+
+The page is served only while the sheet is open, on the TV's LAN address (from the core's
+GetLANIP) at a random port, and answers only at a 6 digit code that is new on each opening.
+After 10 wrong tries from any devices the page locks until the sheet is opened again. It serves
+only local network addresses, checks the Host against DNS rebinding, refuses large texts, and
+needs no script or outside resource. The TV is detected by the leanback feature or the
+television UI mode._
+
+* Feat(home): the hop row names what the hop runs and what it is doing. 
+  _After its IP, the hop row shows the core's name for the hop and its live state, such as
+"WARP · MASQUE", "WARP · Auto 🔑 Registering..." or "Psiphon ⏳ Connecting...". A tap shows
+the hop's proxy info; a long press opens the chain configuration._
+
+* Feat(home): chain badge as its glyph on a seal; the unblocker as an opening door. 
+  _The chain hop on the connect button is its glyph in the chain's colors on a white seal with a
+soft glow: it breathes while extra security connects, shines once up, shakes when it fails,
+and tells a screen reader the chain and its state.
+
+The unblocker gets the proxy through, it does not secure it, so it is no longer a lock or a
+key: it is a door that swings open on its hinge, on the badge, the proxy card and the chain
+header, shut while it waits or fails. The chain page and connection check show it open._
+
+* Feat(chain): choose the WARP tunnel, and let the unblocker's scanner find the rest. 
+  _Both WARP hops get a Tunnel setting: Auto (the core races WireGuard, AmneziaWG and MASQUE and
+keeps the fastest), WireGuard, AmneziaWG or MASQUE, sent as the core's chain mode.
+
+The unblocker's WARP is all auto by default: the scanner finds the endpoint, and with no noise
+set it also finds the noise that gets through, remembered per network. Clean IP, port and noise
+show "Auto" until set; MASQUE hides them, as it uses none of them._
+
+* Feat(proxies): keep the WARP scanner's endpoint behind a magnifier. 
+  _The core appends the endpoint the scanner found to a WARP proxy's type. The proxy list and
+the home card show a magnifier in its place; a tap shows the endpoint, another hides it._
+
+* I18n(ru): polish the Russian locale. 
+  _From hiddify/hiddify-app#2430 by Hollicsh: the polite "Вы", "Обход блокировок" for the
+unblocker, clearer chain and dialog wording. Kept "Conduit" (Psiphon's product name) and
+"padding" (a TLS term, not layout margins), and «» quotes as in the rest of the file._
+
+* Build: hiddify-core with XDRIVE, Xray-core v26.10.31 finalmask and MasterDNS. 
+  _The core now reads patterniha's Xray-core links (merge, dialMode oob, cs,
+hellochrome_120), xdns over DoH and udphop masks, and XDRIVE profiles
+from links and Xray JSON, and ships the with_xdrive tag._
+
+* Feat(quick-settings): extra security and proxy unblocker as two plain rows. 
+  _The chain part of the quick settings sheet was an App, Extra security, Main
+profile, Unblocker, Filtering diagram that users found hard to read. It is
+now two rows in the style of the sheet's other rows, extra security first:
+
+- a tap on the row turns the feature on or off; only one can be on, as
+  there is a single chain status;
+- the method button opens the chain menu in place (off, Psiphon, WARP,
+  configuration) and reads "Off" while the feature is off; the menu now
+  checks the current choice;
+- the icon lights up while on: a green shield for extra security, an
+  orange key for the unblocker (also on the home proxy card);
+- while on, the subtitle shows short hints in turn, every five seconds,
+  the old one fading out before the new one comes in.
+
+The previous layout is kept and comes back with _classicChainLayout in the
+quick settings sheet. LAN sharing is renamed "Share on local network" and
+shows its icon there._
+
+* Feat(json-editor): add a masterdns outbound template. 
+  _The core gained the masterdns outbound (MasterDnsVPN over public resolvers):
+the JSON editor offers it as a type and a template with domains, resolvers,
+encryption and key._
+
+* Feat(routing): Apple services built-in rule, read-only built-in rules, duplicate and copy. 
+  _A new built-in rule sends Apple's services (App Store, iMessage, TestFlight,
+iCloud) direct, on by default, with the geosite-apple rule set and the main
+domain suffixes as a fallback.
+
+Built-in rules open read-only: a lock on the tile, no save button, and a red
+shaking notice on any tap saying the rule cannot be changed and should be
+duplicated instead. Any rule can be duplicated from a long-press (or
+right-click) menu or, for a built-in one, a button on its page; the copy is
+placed after the original, disabled, and opens for editing.
+
+Rule tiles show the outbound in colour with an icon (direct, proxy, block);
+rule-set chips are labelled URLset and show a short host/file form; tapping
+a list opens a dialog with every value in full and a "copy all" button._
+
+* Fix(settings): IPv6 off by default with an explained opt-in, and a "Sing 15" TUN stack default. 
+  _IPv6 routing has three modes: off (IPv4 only, the default), prefer IPv4 and
+prefer IPv6. Turning it on asks for confirmation and an info dialog explains
+why it is off: most proxies have no IPv6, and a connection the proxy cannot
+carry breaks pages in browsers (hiddify-app #2420). Old "enable" values
+migrate to prefer IPv4, everything else to off. A subscription may set the
+mode with an ipv6-mode header.
+
+The TUN stack gets a "Sing 15" choice as the new default, which sends no
+stack to the core so sing-box 1.15 picks its own; the other stacks are
+still selectable._
+
+* Fix(proxies): keep pinging after a hot reload or an idle half hour. 
+  _Rows of the proxies page stayed on the waiting animation for good. A
+profile update whose subscription rotates its credentials hot-reloads
+dozens of outbounds, and each one started over with no ping and waited
+for the next test cycle, or for the next 10-minute tick when a cycle was
+running. The monitoring also stopped testing once nothing had been routed
+for 30 minutes, and the app watching the list did not count as activity,
+so only a tapped row still got a ping.
+
+hiddify-core 6ba0d6d: a replaced outbound keeps its last ping as a cached
+one and is tested at once, only the changed outbounds are tested after a
+hot reload, restarting the idle-stopped monitoring counts as activity,
+and the proxies stream keeps it active while the page is open.
+
+The waiting animation loops in 2.8 s instead of 1.5 s: a page of rows
+waiting for their first ping reads as calm, not busy._
+
+* Fix(ui): stop leaking a CurvedAnimation on every rebuild of an animated widget. 
+  _The app grew to 17 GB over a few days. Every rebuild of a flutter_animate
+Animate widget built one CurvedAnimation per effect, which registers itself
+on the widget's animation controller and is never disposed; proxy tiles, the
+connection button and the active proxy card rebuild on every ping and stats
+tick, so the controllers' listener lists grew without bound
+(gskinner/flutter_animate#155). AnimatedText and the profile tile's action
+button did the same inside an AnimatedSwitcher transition builder, which the
+switcher calls again on every rebuild because the closure is new each time.
+
+flutter_animate 4.5.2 is vendored under third_party/ with the one-method fix
+of upstream PR #166, drive(CurveTween(...)) instead of CurvedAnimation, and
+pinned through dependency_overrides until a release carries it. The two app
+widgets use drive() as well.
+
+Measured on the macOS debug app with GC'd allocation profiles: before, live
+CurvedAnimation instances rose from 2053 to 3228 in 90 s and were never
+freed; after, they stay at 90 and the Dart heap is flat._
+
+
+
+## v5.4.0 (2026-11-01)
 
 #### Other
 

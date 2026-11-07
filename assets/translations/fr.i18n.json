@@ -122,7 +122,9 @@
         "unsorted": "Par défaut",
         "name": "Alphabétiquement",
         "delay": "Par latence",
-        "usage": "Par utilisation"
+        "usage": "Par utilisation",
+        "upload": "Par débit montant",
+        "download": "Par débit descendant"
       },
       "ipInfo": {
         "address": "Adresse IP",
@@ -143,11 +145,93 @@
         "searching": "Recherche",
         "reconnecting": "Reconnexion"
       },
-      "signalStyle": "Style signal"
+      "signalStyle": "Style signal",
+      "keepTop": {
+        "picking": "Recherche des $keep plus rapides parmi $count…",
+        "pickingBody": "Tous les proxys sont testés une fois ; ensuite seuls les plus rapides restent actifs.",
+        "kept": "Les $n plus rapides sont actifs",
+        "keptBody": "$paused autres proxys sont en pause pour économiser batterie et données.",
+        "showAll": "Afficher les $count",
+        "big": "$count proxys sont actifs",
+        "bigBody": "Ne gardez actifs que les $keep plus rapides pour économiser batterie et données.",
+        "keep": "Garder les $keep plus rapides",
+        "change": "Changer le nombre",
+        "chosen": "Vos $n proxys choisis tournent",
+        "choose": "Choisir"
+      },
+      "upload": {
+        "test": "Tester le débit montant",
+        "failed": "Impossible de lancer le test de débit",
+        "hint": "Toucher : débit montant · Maintenir : débit descendant",
+        "hintBoth": "Toucher : les deux débits · Maintenir : débit descendant"
+      },
+      "speedTest": {
+        "title": "Test de débit",
+        "what": "Que tester",
+        "download": "Téléchargement",
+        "upload": "Envoi",
+        "amount": "Quantité par proxy",
+        "proxies": "Proxys à tester",
+        "proxiesHint": "Les plus rapides au ping",
+        "all": "Tous",
+        "fastest": "Les $n plus rapides",
+        "through": "$n Mo par chacun des $count plus rapides",
+        "throughAll": "$n Mo par chacun des $count proxys",
+        "throughEach": "$n Mo par proxy",
+        "start": "Lancer le test",
+        "save": "Enregistrer",
+        "testDownload": "Tester le débit descendant",
+        "both": "Les deux",
+        "bothWays": "en descente et en montée",
+        "amountHint": "plus, c'est plus précis",
+        "clear": "Effacer les résultats enregistrés",
+        "cleared": "Effacés",
+        "which": "Quels proxys",
+        "shown": "Affichés ($n)",
+        "chosen": "Choisis ($n)"
+      }
     },
     "profiles": {
       "title": "Profils",
       "add": "Ajouter un profil",
+      "fromPhone": {
+        "title": "Ajouter depuis le téléphone",
+        "scan": "Scannez ce code avec l'appareil photo du téléphone, collez un lien d'abonnement et envoyez-le.",
+        "sameNetwork": "Votre téléphone et ce téléviseur doivent être sur le même réseau Wi-Fi.",
+        "noNetwork": "Ce téléviseur n'est pas sur un réseau local. Connectez-le au Wi-Fi pour ajouter un lien depuis votre téléphone.",
+        "locked": "Trop de codes erronés ont été essayés, l'accès est donc verrouillé. Fermez puis rouvrez pour obtenir un nouveau code.",
+        "received": "Reçu depuis votre téléphone",
+        "from": "Depuis $address",
+        "page": {
+          "title": "Envoyer à Hiddify sur votre téléviseur",
+          "intro": "Ajoutez un abonnement au téléviseur en quatre étapes, sans le saisir à la télécommande.",
+          "steps": {
+            "network": {
+              "title": "Rejoignez le même Wi-Fi",
+              "body": "Le téléphone et le téléviseur doivent être sur le même réseau Wi-Fi, sinon cette page ne peut pas joindre le téléviseur."
+            },
+            "copy": {
+              "title": "Copiez votre lien",
+              "body": "Copiez le lien d'abonnement de votre fournisseur, ou tout lien de proxy ou configuration."
+            },
+            "paste": {
+              "title": "Collez-le ici",
+              "body": "Touchez la zone ci-dessous, collez le lien, puis touchez « Envoyer au téléviseur »."
+            },
+            "confirm": {
+              "title": "Confirmez sur le téléviseur",
+              "body": "Le lien s'affiche sur le téléviseur. Appuyez sur Importer avec la télécommande. Rien n'est ajouté avant."
+            }
+          },
+          "label": "Lien d'abonnement",
+          "hint": "Collez un lien d'abonnement ou une configuration",
+          "send": "Envoyer au téléviseur",
+          "sentTitle": "Envoyé au téléviseur",
+          "sent": "Appuyez maintenant sur Importer sur le téléviseur pour l'ajouter. Vous pouvez envoyer un autre lien ci-dessous.",
+          "empty": "Collez d'abord un lien.",
+          "footer": "Cette page ne fonctionne que lorsque « Ajouter un profil » est ouvert sur le téléviseur, et seulement sur votre réseau local."
+        }
+      },
       "update": "Mettre à jour le profil",
       "viewAllProfiles": "Voir tous les profils",
       "activeProfileName": "Nom du profil actif : « ${name} »",
@@ -277,7 +361,10 @@
         "useXrayCoreWhenPossible": "Utiliser xray-core si possible",
         "useXrayCoreWhenPossibleMsg": "Utilisez xray-core lors de l'analyse des liens d'abonnement. Réimportez l'abonnement pour activer cette option.",
         "useSystemTlsEngine": "Utiliser le TLS du système si disponible",
-        "useSystemTlsEngineMsg": "Les connexions sans empreinte TLS utilisent le TLS de macOS, iOS ou Windows une fois qu’il a réussi une vérification sur cet appareil ; sinon, elles ressemblent à Chrome."
+        "useSystemTlsEngineMsg": "Les connexions sans empreinte TLS utilisent le TLS de macOS, iOS ou Windows une fois qu’il a réussi une vérification sur cet appareil ; sinon, elles ressemblent à Chrome.",
+        "uploadTestSize": "Taille du test d'envoi",
+        "megabytes": "$n Mo",
+        "speedTest": "Test de débit"
       },
       "routing": {
         "title": "Routage",
@@ -498,13 +585,29 @@
           "system": "Système",
           "gvisor": "gVisor"
         },
-        "mixedPort": "Port mixte",
+        "mixedPort": "Port du proxy (SOCKS5/4, HTTP)",
         "tproxyPort": "Port de proxy transparent",
         "directPort": "Port direct local",
         "redirectPort": "Port de redirection",
         "lanSharing": "Partage VPN sécurisé",
+        "connectionSharing": "Partage de connexion",
         "qrCode": "Code QR",
-        "lanQrSubtitle": "Proxy SOCKS5"
+        "closedInVpn": "fermé en mode VPN, sauf en partage",
+        "proxySecret": "Secret du proxy",
+        "noSecret": "Sans secret : toute app ou tout appareil qui atteint le port peut l'utiliser",
+        "generateSecret": "En générer un nouveau",
+        "removeSecret": "Supprimer le secret ?",
+        "removeSecretMsg": "Sans secret, toute app de cet appareil, et tout appareil du réseau en partage, peut utiliser le proxy sans utilisateur ni mot de passe. À vos risques.",
+        "localProxy": "Proxy local",
+        "localProxyInVpn": "Garder ouvert en mode VPN",
+        "localProxyInVpnHint": "Les apps passent déjà par le VPN ; seulement pour les apps réglées sur le proxy",
+        "localProxyAuth": "Exiger un mot de passe",
+        "localProxyAuthHint": "Certaines apps, comme les navigateurs, ne peuvent pas envoyer de mot de passe SOCKS",
+        "notAsSystemProxy": "Non demandé comme proxy système, qui ne peut pas l'envoyer",
+        "lanGroup": "Partage sur le réseau local",
+        "lanSharingPort": "Port de partage",
+        "otherPorts": "Autres ports",
+        "closedInVpnLocal": "fermé en mode VPN"
       },
       "tlsTricks": {
         "title": "Astuces TLS",
@@ -554,6 +657,7 @@
         "warp": {
           "missingConfig": "Configuration WARP manquante",
           "licenseKey": "Clé de licence",
+          "tunnel": "Tunnel",
           "cleanIp": "IP propre",
           "port": "Port",
           "noise": {
@@ -570,7 +674,26 @@
               "dnsCloudflare": "DNS (cloudflare.com)",
               "sip": "SIP (appel VoIP)",
               "stun": "STUN (appel vidéo)"
-            }
+            },
+            "title": "Bruit WireGuard"
+          },
+          "endpoint": "Point de terminaison",
+          "endpointSources": {
+            "profile": "Attribué par Cloudflare",
+            "scan": "Scan",
+            "custom": "Personnalisé"
+          },
+          "customServer": "Adresse",
+          "mtu": "MTU",
+          "customized": "Personnalisé",
+          "scanner": {
+            "title": "Scanner"
+          },
+          "masque": {
+            "title": "MASQUE"
+          },
+          "awg": {
+            "title": "AmneziaWG"
           }
         },
         "psiphon": {
@@ -673,7 +796,13 @@
       "msg": "Une nouvelle version de @:common.appTitle est disponible. Mettre à jour maintenant ?",
       "currentVersion": "Version actuelle",
       "newVersion": "Nouvelle version",
-      "updateNow": "Mettre à jour"
+      "updateNow": "Mettre à jour",
+      "downloading": "Téléchargement…",
+      "installing": "Lancement de l'installateur…",
+      "allowInstall": "Autorisez Hiddify à installer des applications dans les réglages ouverts, puis réessayez.",
+      "failed": "La mise à jour n'a pas pu être installée.",
+      "openPage": "Ouvrir la page de la version",
+      "tryAgain": "Réessayer"
     },
     "confirmation": {
       "settings": {
@@ -770,7 +899,12 @@
       "location": "Emplacement ",
       "postalCode": "Code postal ",
       "download": "Téléchargement ",
-      "upload": "Envoi "
+      "upload": "Envoi ",
+      "ping": "Ping",
+      "speed": "Débit",
+      "server": "Serveur",
+      "country": "Pays",
+      "tapToTest": "Touchez pour tester"
     },
     "windowClosing": {
       "askEachTime": "Demander à chaque fois",
@@ -780,8 +914,8 @@
     "qrCode": {
       "copyFullLink": "Copier le lien complet",
       "copied": "Copié",
-      "localOnlyTitle": "Cet appareil uniquement",
-      "localOnlyMessage": "Les autres appareils ne peuvent pas joindre 127.0.0.1",
+      "lanLine": "SOCKS5 · même réseau uniquement",
+      "noLocalNetwork": "Aucun réseau local trouvé",
       "ip": "IP",
       "port": "Port",
       "username": "Nom d'utilisateur",
@@ -791,6 +925,71 @@
     },
     "qrScanner": {
       "notFound": "Aucun code QR trouvé dans cette image"
+    },
+    "keepTop": {
+      "title": "Un gros abonnement",
+      "description": "Ce profil contient $count proxys. Les garder tous actifs consomme batterie, données et mémoire. Hiddify peut les tester une fois, garder les $keep plus rapides et mettre les autres en pause.",
+      "hint": "Vous pouvez tous les réactiver à tout moment, en bas de la liste des proxys.",
+      "keeping": "Les $keep plus rapides tournent, les autres en pause",
+      "all": "Les $count tournent",
+      "keep": "Garder les $keep plus rapides",
+      "useAll": "Utiliser les $count",
+      "howMany": "Combien garder actifs",
+      "pickByHand": "Choisir les proxys vous-même"
+    },
+    "keepTags": {
+      "title": "Choisir les proxys",
+      "hint": "Seuls ceux-ci tournent, à chaque connexion.",
+      "search": "Rechercher",
+      "all": "Tout sélectionner",
+      "none": "Effacer",
+      "run": "Utiliser ces $n",
+      "sort": "Trier",
+      "sortProfile": "Ordre du profil",
+      "sortPing": "Ping",
+      "sortDownload": "Téléchargement",
+      "sortUpload": "Envoi",
+      "selectFastest": "Les $n plus rapides",
+      "statusChosen": "Choisis",
+      "statusAnswering": "Répondent",
+      "statusPaused": "En pause",
+      "paused": "$n proxys sont en pause : ils n'ont pas de ping et ne peuvent pas être testés.",
+      "wake": "Tout lancer pour tester",
+      "offline": "Connectez-vous pour voir leur ping et les tester.",
+      "offlineTitle": "Non connecté",
+      "shown": "$n affichés",
+      "noMatch": "Aucun proxy ne correspond",
+      "chosenHint": "Touchez un proxy ci-dessus pour le choisir",
+      "allShown": "Tous sont dans la liste ci-dessus",
+      "notShown": "Non affichés :",
+      "protocol": "Protocole",
+      "country": "Pays",
+      "anyProtocol": "Tout protocole",
+      "anyCountry": "Tout pays",
+      "otherCountries": "Autres"
+    },
+    "localProxy": {
+      "steps": [
+        "Ouvrez les réglages proxy de l'app",
+        "Choisissez SOCKS5 ou HTTP",
+        "Saisissez les valeurs ci-dessous · touchez pour copier",
+        "Gardez Hiddify connecté"
+      ],
+      "hint": "Mode proxy · mode d'emploi",
+      "setPassword": "Définir un mot de passe",
+      "manual": "Manuel",
+      "dontShowAgain": "Ne plus afficher",
+      "thisDevice": "Cet appareil",
+      "otherDevices": "Autres appareils",
+      "server": "Serveur",
+      "noPassword": "Aucun mot de passe",
+      "turnOnSharing": "Activer le partage",
+      "copyLink": "Copier le lien",
+      "telegramLink": "Lien Telegram",
+      "fullLink": "Lien complet",
+      "portRange": "Utilisez un port entre 1024 et 65535",
+      "passwordTooShort": "Au moins 4 caractères",
+      "edit": "Modifier"
     }
   },
   "connection": {

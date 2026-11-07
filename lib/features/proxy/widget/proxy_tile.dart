@@ -5,9 +5,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/widget/unique_keys_layout.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
 import 'package:hiddify/features/proxy/model/proxy_entity.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
+import 'package:hiddify/features/proxy/widget/proxy_type_label.dart';
+import 'package:hiddify/features/proxy/widget/upload_speed.dart';
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/gen/fonts.gen.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
@@ -16,11 +19,24 @@ import 'package:hiddify/utils/platform_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProxyTile extends HookConsumerWidget with PresLogger {
-  const ProxyTile(this.proxy, {super.key, required this.selected, required this.onTap});
+  const ProxyTile(
+    this.proxy, {
+    super.key,
+    required this.selected,
+    required this.onTap,
+    this.testable = true,
+    this.showPing = true,
+  });
 
   final OutboundInfo proxy;
   final bool selected;
   final GestureTapCallback? onTap;
+
+  /// Whether a tap on the ping or the speeds tests the proxy; else a tap anywhere is the row's.
+  final bool testable;
+
+  /// Whether the ping shows: not for a proxy the core does not run, which no ping will reach.
+  final bool showPing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,6 +51,17 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
     final colors = _RowColors.of(context);
     // the proxy gave up: the row fades, only the red word stays bright
     final faded = state == ProxyRowState.failed;
+    // tested for its upload or download speed, or being tested: the speeds show under the ping
+    // a proxy whose ping and both speeds failed shows the ping's cross alone
+    final allFailed =
+        state == ProxyRowState.pingFailed &&
+        proxy.uploadSpeed < 0 &&
+        proxy.downloadSpeed < 0 &&
+        !proxy.uploadTesting &&
+        !proxy.downloadTesting;
+    final uploaded =
+        !allFailed &&
+        (proxy.uploadTesting || proxy.uploadSpeed != 0 || proxy.downloadTesting || proxy.downloadSpeed != 0);
     final word = switch (state) {
       ProxyRowState.connecting => t.pages.proxies.status.connecting,
       ProxyRowState.registering => t.pages.proxies.status.registering,
@@ -65,16 +92,12 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
       subtitle: Row(
         children: [
           Flexible(
-            child: Text.rich(
-              TextSpan(
-                text: proxy.typeWithoutStatus,
-                children: [
-                  if (proxy.isGroup)
-                    TextSpan(text: ' (${proxy.groupSelectedTagDisplay.trim()})', style: theme.textTheme.bodySmall),
-                ],
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: ProxyTypeLabel(
+              proxy.typeWithoutStatus,
+              suffix: [
+                if (proxy.isGroup)
+                  TextSpan(text: ' (${proxy.groupSelectedTagDisplay.trim()})', style: theme.textTheme.bodySmall),
+              ],
               style: faded ? TextStyle(color: theme.colorScheme.onSurfaceVariant.withValues(alpha: _fadedAlpha)) : null,
             ),
           ),
@@ -83,29 +106,53 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
       ),
       trailing: SizedBox(
         width: 88,
-        child: Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: Semantics(
-            button: true,
-            label: t.pages.proxies.testDelay,
-            // the tap area hugs the ping; the rest of the row keeps its own tap and long press
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              // a tap tests only this proxy; a long press switches number ↔ signal for every row
-              onTap: () => ref.read(proxiesOverviewNotifierProvider.notifier).urlTest(proxy.tag),
-              onLongPress: () => ref.read(proxyPingStyleNotifierProvider.notifier).toggle(),
-              child: Padding(
-                padding: const EdgeInsets.all(6),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: KeyedSubtree(
-                    key: ValueKey((state, style)),
-                    child: _ping(context, state, style, colors, t, arrived: arrived),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Semantics(
+              button: true,
+              label: t.pages.proxies.testDelay,
+              // the tap area hugs the ping; the rest of the row keeps its own tap and long press
+              child: InkWell(
+                borderRadius: BorderRadius.circular(8),
+                // a tap tests this proxy's ping, a long press its upload speed
+                onTap: testable ? () => ref.read(proxiesOverviewNotifierProvider.notifier).urlTest(proxy.tag) : null,
+                onLongPress: testable
+                    ? () => ref.read(proxiesOverviewNotifierProvider.notifier).uploadTest(proxy.tag)
+                    : null,
+                child: Padding(
+                  padding: uploaded ? const EdgeInsets.symmetric(horizontal: 6, vertical: 2) : const EdgeInsets.all(6),
+                  child: AnimatedSwitcher(
+                    layoutBuilder: uniqueKeysLayout(),
+                    duration: const Duration(milliseconds: 250),
+                    child: KeyedSubtree(
+                      key: ValueKey((state, style)),
+                      child: showPing
+                          ? _ping(context, state, style, colors, t, arrived: arrived)
+                          : const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+            if (uploaded)
+              // a tap tests the upload again, a long press the download
+              IgnorePointer(
+                ignoring: !testable,
+                child: UploadSpeedChip(
+                  speed: proxy.uploadSpeed.toInt(),
+                  testing: proxy.uploadTesting,
+                  cached: proxy.uploadSpeedCached,
+                  onTest: () => ref.read(proxiesOverviewNotifierProvider.notifier).uploadTest(proxy.tag),
+                  downloadSpeed: proxy.downloadSpeed.toInt(),
+                  downloadTesting: proxy.downloadTesting,
+                  downloadCached: proxy.downloadSpeedCached,
+                  onDownloadTest: () => ref.read(proxiesOverviewNotifierProvider.notifier).downloadTest(proxy.tag),
+                  dense: true,
+                ),
+              ),
+          ],
         ),
       ),
       selected: selected,
@@ -291,9 +338,10 @@ class _Logo extends StatelessWidget {
   factory _Logo.lit(Color color, {required int bars}) =>
       _Logo([for (var b = 0; b < 3; b++) b < bars ? color : color.withValues(alpha: .25)]);
 
-  /// Waiting: the columns light up in turn, then dim in turn. Their size never changes.
+  /// Waiting: the columns light up in turn, then dim in turn. Their size never changes. A slow
+  /// loop: a page of rows waiting for their first ping should read as calm, not busy.
   static Widget loading(Color color) => _Looping(
-    period: const Duration(milliseconds: 1500),
+    period: const Duration(milliseconds: 2800),
     builder: (v) {
       double lit(int b) {
         final up = _ease((v - b * .16) / .22);
@@ -435,6 +483,7 @@ class _FlagSlot extends StatelessWidget {
     return SizedBox.square(
       dimension: size,
       child: AnimatedSwitcher(
+        layoutBuilder: uniqueKeysLayout(),
         duration: const Duration(milliseconds: 300),
         child: KeyedSubtree(key: ValueKey(key), child: child),
       ),

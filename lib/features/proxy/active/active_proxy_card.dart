@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -9,6 +10,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/theme_extensions.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
+import 'package:hiddify/core/widget/unique_keys_layout.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_icon.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
@@ -16,6 +18,8 @@ import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
 import 'package:hiddify/features/proxy/model/proxy_entity.dart';
+import 'package:hiddify/features/proxy/widget/proxy_type_label.dart';
+import 'package:hiddify/features/proxy/widget/upload_speed.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -140,12 +144,18 @@ class _StepRow extends StatelessWidget {
     this.subtitle = const SizedBox.shrink(),
     this.height = _rowHeight,
     this.trailing,
+    this.end,
+    this.onLongPress,
   });
 
   final double height;
   final Widget? trailing;
+
+  /// Before the chevron of a row without [trailing]: the upload speed of the proxy in use.
+  final Widget? end;
   final Color color;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final Widget flag;
   final StepStatus status;
   final Widget title;
@@ -157,6 +167,7 @@ class _StepRow extends StatelessWidget {
       color: color,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         child: SizedBox(
           height: height,
           child: Row(
@@ -195,6 +206,7 @@ class _StepRow extends StatelessWidget {
                 // room for the trailing widget's badge, clear of the card's rounded corner
                 const Gap(24),
               ] else ...[
+                if (end case final end?) ...[const Gap(8), end, const Gap(4)],
                 Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const Gap(12),
               ],
@@ -228,6 +240,32 @@ class _Problem extends StatelessWidget {
   }
 }
 
+/// Shows [first] and [second] in turn, a few seconds each, with a crossfade; it starts on [first].
+class _Alternating extends HookWidget {
+  const _Alternating(this.first, this.second);
+  final Widget first;
+  final Widget second;
+
+  static const _period = Duration(seconds: 3);
+
+  @override
+  Widget build(BuildContext context) {
+    final showFirst = useState(true);
+    useEffect(() {
+      final timer = Timer.periodic(_period, (_) => showFirst.value = !showFirst.value);
+      return timer.cancel;
+    }, const []);
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      layoutBuilder: (current, previous) => Stack(
+        alignment: AlignmentDirectional.centerStart,
+        children: [...previous, ?current],
+      ),
+      child: KeyedSubtree(key: ValueKey(showFirst.value), child: showFirst.value ? first : second),
+    );
+  }
+}
+
 TextStyle? _nameStyle(BuildContext context, StepStatus status) => Theme.of(context).textTheme.titleMedium?.copyWith(
   fontSize: 14,
   // a step that waits for the one before it is dimmed
@@ -257,6 +295,20 @@ class _ProxyRow extends ConsumerWidget {
     return _StepRow(
       color: theme.cardTheme.color ?? s.surfaceContainerLow,
       onTap: () => context.goNamed('proxies'),
+      // how fast the proxy in use uploads and downloads: a tap measures the upload, a long press the
+      // download
+      end: connected
+          ? UploadSpeedChip(
+              speed: server.uploadSpeed.toInt(),
+              testing: server.uploadTesting,
+              cached: server.uploadSpeedCached,
+              onTest: () => ref.read(activeProxyNotifierProvider.notifier).uploadTest(),
+              downloadSpeed: server.downloadSpeed.toInt(),
+              downloadTesting: server.downloadTesting,
+              downloadCached: server.downloadSpeedCached,
+              onDownloadTest: () => ref.read(activeProxyNotifierProvider.notifier).downloadTest(),
+            )
+          : null,
       flag: InkWell(
         onTap: () async {
           await urlTest();
@@ -301,13 +353,13 @@ class _ProxyRow extends ConsumerWidget {
         StepStatus.failed => _Problem(
           group == lowestGroupTag ? t.pages.proxies.noneResponding : t.pages.proxies.notResponding,
         ),
-        StepStatus.waiting => Text(server.type, maxLines: 1, overflow: TextOverflow.ellipsis, style: muted),
+        StepStatus.waiting => ProxyTypeLabel(server.type, style: muted),
         _ => Row(
           children: [
             // The config's IP is the final one only with unblocker; with no chain it is the only one.
             _IpSlot(connected ? server : null, boneWidth: 64, isFinal: card.chain.isUnblocker(), onLongPress: urlTest),
             Flexible(
-              child: Text('  ·  ${server.type}', maxLines: 1, overflow: TextOverflow.ellipsis, style: muted),
+              child: ProxyTypeLabel(server.type, prefix: '  ·  ', style: muted),
             ),
           ],
         ),
@@ -316,7 +368,8 @@ class _ProxyRow extends ConsumerWidget {
   }
 }
 
-// ---------- the hop row: its IP, then the chain type in a chip with its mode as a badge ----------
+// ---------- the hop row: its IP, then the chain type in a chip with its mode as a badge. A tap
+// shows the hop's proxy info, a long press its configuration. ----------
 
 class _HopRow extends ConsumerWidget {
   const _HopRow(this.card);
@@ -334,26 +387,51 @@ class _HopRow extends ConsumerWidget {
     final (main, _) = type.colors(card.hopMode);
     final color = Color.alphaBlend(main.withValues(alpha: .16), s.surfaceContainerHigh);
     final down = status == StepStatus.waiting || status == StepStatus.failed;
+    final hop = card.hop;
+    // the core still setting the hop up (or not listing it yet): its live state in place of the flag
+    // and the IP; once the core says ready, the flag and the IP wait for the first ping as usual
+    final live = status == StepStatus.slow || (status == StepStatus.connecting && hop?.status != Status.READY);
     return _StepRow(
       color: color,
-      onTap: () => context.goNamed('chainOptions'),
+      onTap: hop == null
+          ? () => context.goNamed('chainOptions')
+          : () => ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: hop),
+      onLongPress: () => context.goNamed('chainOptions'),
       height: _hopRowHeight,
-      flag: _FlagSlot(
-        status == StepStatus.connected ? card.hop : null,
-        size: _hopFlagSize,
-        radius: _hopFlagRadius,
-        dim: down,
-      ),
+      // while the hop connects, its live state as a moving icon in the flag's place
+      flag: switch (status) {
+        _ when live => SizedBox.square(
+          dimension: _hopFlagSize,
+          child: Center(
+            child: _HopStateIcon(slow: status == StepStatus.slow, core: hop?.status, color: main),
+          ),
+        ),
+        _ => _FlagSlot(
+          status == StepStatus.connected ? card.hop : null,
+          size: _hopFlagSize,
+          radius: _hopFlagRadius,
+          dim: down,
+        ),
+      },
       status: status,
       title: switch (status) {
         StepStatus.waiting => const SizedBox.shrink(),
-        StepStatus.slow => _Problem(t.connection.slow, error: false),
-        StepStatus.failed => _Problem(t.connection.failed),
-        _ => _IpSlot(
-          status == StepStatus.connected ? card.hop : null,
-          boneWidth: 64,
-          isFinal: card.chain.isExtraSecurity(),
+        // slow: the warning comes and goes, and in between the row says what the hop is doing
+        StepStatus.slow => _Alternating(
+          _Problem(t.connection.slow, error: false),
+          ProxyTypeLabel(
+            hop?.type ?? card.hopMode.present(t),
+            style: theme.textTheme.labelMedium?.copyWith(color: s.onSurfaceVariant),
+          ),
         ),
+        StepStatus.failed => _Problem(t.connection.failed),
+        // while it connects, what the hop runs and what it is doing, as the core names it ("Psiphon ⏳
+        // Connecting...", "WARP · Auto 🔑 Registering..."), in place of the IP's placeholder
+        StepStatus.connecting when live => ProxyTypeLabel(
+          hop?.type ?? card.hopMode.present(t),
+          style: theme.textTheme.labelMedium?.copyWith(color: s.onSurfaceVariant),
+        ),
+        _ => _IpSlot(status == StepStatus.connected ? hop : null, boneWidth: 64, isFinal: card.chain.isExtraSecurity()),
       },
       trailing: Stack(
         clipBehavior: Clip.none,
@@ -400,6 +478,93 @@ class _HopRow extends ConsumerWidget {
   }
 }
 
+/// A connecting hop's live state on a small tile: an hourglass that flips while it connects, a clock
+/// when it is slow, a pulsing fingerprint while WARP registers, a circling magnifier while it
+/// searches, spinning arrows while it reconnects.
+class _HopStateIcon extends HookWidget {
+  const _HopStateIcon({required this.slow, required this.core, required this.color});
+  final bool slow;
+  final Status? core;
+  final Color color;
+
+  static const _tile = 22.0;
+
+  /// One loop holds every motion: the clock's hour hand takes the longest, 36 s.
+  static const _loop = 36.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
+    final clock = useAnimationController(duration: const Duration(seconds: 36));
+    useEffect(() {
+      clock.repeat();
+      return null;
+    }, const []);
+    final amber = Colors.amber.shade300;
+    return RepaintBoundary(
+      child: Container(
+        width: _tile,
+        height: _tile,
+        decoration: BoxDecoration(color: s.onSurface.withValues(alpha: .08), borderRadius: BorderRadius.circular(4)),
+        child: Center(
+          child: AnimatedBuilder(
+            animation: clock,
+            builder: (context, _) {
+              final t = clock.value * _loop;
+              Icon icon(IconData data) => Icon(data, size: 15, color: color);
+              return switch (core) {
+                _ when slow => CustomPaint(size: const Size.square(15), painter: _ClockPainter(t, amber)),
+                Status.REGISTERING => Opacity(
+                  opacity: .55 + .45 * ((math.sin(t * 2 * math.pi / 1.6) + 1) / 2),
+                  child: Icon(Icons.fingerprint_rounded, size: 16, color: color),
+                ),
+                Status.SEARCHING => Transform.translate(
+                  offset: Offset(math.cos(t * 2 * math.pi / 1.6), math.sin(t * 2 * math.pi / 1.6)) * 3,
+                  child: icon(Icons.search_rounded),
+                ),
+                Status.RECONNECTING => Transform.rotate(angle: -t * 2 * math.pi / 1.2, child: icon(Icons.sync_rounded)),
+                // a half turn every 1.6 s: it turns in the first half, then rests
+                _ => Transform.rotate(
+                  angle:
+                      math.pi * (t ~/ 1.6) +
+                      math.pi * Curves.easeInOutCubic.transform(((t % 1.6) / 1.6 * 2).clamp(0.0, 1.0)),
+                  child: icon(Icons.hourglass_top_rounded),
+                ),
+              };
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A clock face with two hands: the minute hand goes round every 3 s, the hour hand twelve times
+/// slower. Both stay clear of the rim.
+class _ClockPainter extends CustomPainter {
+  _ClockPainter(this.t, this.color);
+  final double t;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.width / 2 - 1;
+    final pen = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(c, r, pen..strokeWidth = 1.6);
+    Offset tip(double turns, double length) =>
+        c + Offset(math.sin(turns * 2 * math.pi), -math.cos(turns * 2 * math.pi)) * length;
+    canvas.drawLine(c, tip(t / 3, r * .55), pen..strokeWidth = 1.4);
+    canvas.drawLine(c, tip(.25 + t / 36, r * .38), pen..strokeWidth = 1.8);
+  }
+
+  @override
+  bool shouldRepaint(_ClockPainter old) => old.t != t || old.color != color;
+}
+
 // ---------- a step's state: a badge on its flag, and the rail to the next step ----------
 
 /// Waiting: an empty circle; connecting: a spinner; connected: a check; failed: an error icon.
@@ -420,6 +585,7 @@ class _StateBadge extends StatelessWidget {
       child: SizedBox.square(
         dimension: size,
         child: AnimatedSwitcher(
+          layoutBuilder: uniqueKeysLayout(),
           duration: const Duration(milliseconds: 250),
           child: switch (status) {
             StepStatus.waiting => Container(
@@ -652,6 +818,7 @@ class _FlagSlot extends StatelessWidget {
       child: RepaintBoundary(
         // the pop and the ring repaint the slot alone
         child: AnimatedSwitcher(
+          layoutBuilder: uniqueKeysLayout(),
           duration: const Duration(milliseconds: 250),
           child: switch (info) {
             OutboundInfo(hasIp: true) => Stack(
@@ -716,8 +883,7 @@ class _IpSlot extends StatelessWidget {
     final info = this.info;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
-      layoutBuilder: (current, previous) =>
-          Stack(alignment: AlignmentDirectional.centerStart, children: [...previous, ?current]),
+      layoutBuilder: uniqueKeysLayout(AlignmentDirectional.centerStart),
       child: switch (info) {
         OutboundInfo(hasIp: true) =>
           KeyedSubtree(

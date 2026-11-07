@@ -52,12 +52,14 @@ class DioHttpClient with InfraLogger {
           // what dart:io sends when a request has no user agent of its own, a redirect for one
           final client = HttpClient()..userAgent = userAgent;
           client.findProxy = (url) {
+            // the secret, when the local port asks for it; one that does not ignores it
+            final proxy = secret.isEmpty ? "localhost:$port" : "hiddify:$secret@localhost:$port";
             if (mode == "proxy") {
-              return "PROXY localhost:$port";
+              return "PROXY $proxy";
             } else if (mode == "direct") {
               return "DIRECT";
             } else {
-              return "PROXY localhost:$port; DIRECT";
+              return "PROXY $proxy; DIRECT";
             }
           };
           return client;
@@ -71,6 +73,9 @@ class DioHttpClient with InfraLogger {
   }
 
   int port = 0;
+
+  /// The secret of the local port, empty when it asks for none.
+  String secret = "";
 
   String userAgent;
   // bool isPortOpen(String host, int port, {Duration timeout = const Duration(milliseconds: 200)}) async{
@@ -110,9 +115,11 @@ class DioHttpClient with InfraLogger {
     bool proxyOnly = false,
     ResponseType? responseType,
   }) async {
-    final mode = proxyOnly
+    // in VPN mode the local port is closed, and the VPN carries the request instead
+    final portOpen = await isPortOpen("127.0.0.1", port);
+    final mode = proxyOnly && portOpen
         ? "proxy"
-        : await isPortOpen("127.0.0.1", port)
+        : portOpen
         ? "both"
         : "direct";
     final dio = _dio[mode]!;
@@ -131,6 +138,7 @@ class DioHttpClient with InfraLogger {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    ProgressCallback? onReceiveProgress,
   }) async {
     final mode = proxyOnly
         ? "proxy"
@@ -142,6 +150,7 @@ class DioHttpClient with InfraLogger {
       url,
       path,
       cancelToken: cancelToken,
+      onReceiveProgress: onReceiveProgress,
       options: _options(url, userAgent: userAgent, credentials: credentials),
     );
   }

@@ -22,6 +22,9 @@ abstract interface class ProfileRepository {
   TaskEither<ProfileFailure, ProfileEntity?> getById(String id);
   TaskEither<ProfileFailure, Unit> setAsActive(String id);
   TaskEither<ProfileFailure, Unit> setPinned(String id, bool pinned);
+
+  /// Saves the user's choices for the profile, without reading its configs again.
+  TaskEither<ProfileFailure, Unit> setUserOverride(String id, UserOverride userOverride);
   TaskEither<ProfileFailure, Unit> deleteById(String id, bool isActive);
   Stream<Either<ProfileFailure, ProfileEntity?>> watchActiveProfile();
   Stream<Either<ProfileFailure, bool>> watchHasAnyProfile();
@@ -94,6 +97,14 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   }
 
   @override
+  TaskEither<ProfileFailure, Unit> setUserOverride(String id, UserOverride userOverride) {
+    return TaskEither.tryCatch(() async {
+      await _profileDataSource.edit(id, ProfileEntriesCompanion(userOverride: Value(userOverride.toStr())));
+      return unit;
+    }, ProfileUnexpectedFailure.new);
+  }
+
+  @override
   TaskEither<ProfileFailure, Unit> deleteById(String id, bool isActive) {
     return TaskEither.tryCatch(() async {
       await _profileDataSource.deleteById(id, isActive);
@@ -121,6 +132,16 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
         .handleExceptions(ProfileUnexpectedFailure.new);
   }
 
+  /// [entry] as a profile, or null when it can not be read, logged.
+  ProfileEntity? _readable(ProfileEntry entry) {
+    try {
+      return entry.toEntity();
+    } catch (error, stackTrace) {
+      loggy.warning("profile [${entry.id}] (${entry.name}) can not be read, left out of the list", error, stackTrace);
+      return null;
+    }
+  }
+
   @override
   Stream<Either<ProfileFailure, List<ProfileEntity>>> watchAll({
     ProfilesSort sort = ProfilesSort.lastUpdate,
@@ -128,7 +149,8 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   }) {
     return _profileDataSource
         .watchAll(sort: sort, sortMode: sortMode)
-        .map((event) => event.map((e) => e.toEntity()).toList())
+        // each profile on its own: one that can not be read is left out, not every profile with it
+        .map((event) => [for (final entry in event) ?_readable(entry)])
         .handleExceptions(ProfileUnexpectedFailure.new);
   }
 

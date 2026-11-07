@@ -10,11 +10,9 @@ import 'package:hiddify/core/model/optional_range.dart';
 import 'package:hiddify/features/profile/data/profile_data_mapper.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/singbox/model/singbox_proxy_type.dart';
 import 'package:hiddify/utils/utils.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
 
 /// parse profile subscription url and headers for data
@@ -42,6 +40,7 @@ class ProfileParser with InfraLogger {
   static const infiniteTrafficThreshold = 1_099_511_627_776_000;
   static const infiniteTimeThreshold = 92_233_720_368;
   static const allowedOverrideConfigs = [
+    'ipv6-mode',
     'connection-test-url',
     'ipinfo-url',
     'direct-dns-address',
@@ -49,6 +48,8 @@ class ProfileParser with InfraLogger {
     'tls-tricks',
     'chain-status',
     'extra-security',
+    'keep-top',
+    'keep-tags',
   ];
   static const allowedProfileHeaders = [
     'profile-title',
@@ -60,12 +61,12 @@ class ProfileParser with InfraLogger {
     'ipinfo-url',
     'extra-security',
     'fragment',
+    'keep-top',
   ];
 
-  final Ref _ref;
   final DioHttpClient _httpClient;
 
-  ProfileParser({required Ref ref, required DioHttpClient httpClient}) : _ref = ref, _httpClient = httpClient;
+  ProfileParser({required DioHttpClient httpClient}) : _httpClient = httpClient;
   TaskEither<ProfileFailure, ProfileEntriesCompanion> addLocal({
     required String id,
     required String content,
@@ -164,9 +165,6 @@ class ProfileParser with InfraLogger {
           url.trim(),
           tempFilePath,
           cancelToken: cancelToken,
-          userAgent: _ref.read(ConfigOptions.useXrayCoreWhenPossible)
-              ? _httpClient.userAgent.replaceAll("HiddifyNext", "HiddifyNextX")
-              : null,
         )
         .catchError((err) {
           if (CancelToken.isCancel(err as DioException)) {
@@ -208,9 +206,6 @@ class ProfileParser with InfraLogger {
           final response = await _httpClient.get<String>(
             line.trimRight(),
             cancelToken: cancelToken,
-            userAgent: _ref.read(ConfigOptions.useXrayCoreWhenPossible)
-                ? _httpClient.userAgent.replaceAll('HiddifyNext', 'HiddifyNextX')
-                : null,
             responseType: ResponseType.plain,
           );
           results[currentIndex] = (response.data ?? '').trim();
@@ -351,6 +346,20 @@ class ProfileParser with InfraLogger {
     return '';
   }
 
+  /// Decode the value of a `profile-title: base64:<value>` header.
+  ///
+  /// Accepts the value without `=` padding, which some servers send. Returns ''
+  /// when it is not valid base64 or not UTF-8, so the name falls through to the
+  /// next source instead of failing the whole profile parse.
+  @visibleForTesting
+  static String decodeBase64Title(String value) {
+    try {
+      return utf8.decode(base64.decode(base64.normalize(value.trim()))).trim();
+    } on FormatException {
+      return '';
+    }
+  }
+
   @visibleForTesting
   static Either<ProfileFailure, ProfileEntity> parse({required String tempFilePath, required ProfileEntity profile}) =>
       Either.tryCatch(() {
@@ -362,7 +371,7 @@ class ProfileParser with InfraLogger {
 
         if (headers['profile-title'] case final String titleHeader when name.isBlank) {
           if (titleHeader.startsWith("base64:")) {
-            name = utf8.decode(base64.decode(titleHeader.replaceFirst("base64:", "")));
+            name = decodeBase64Title(titleHeader.replaceFirst("base64:", ""));
           } else {
             name = titleHeader.trim();
           }
@@ -480,17 +489,9 @@ class ProfileParser with InfraLogger {
   }
 
   static String profileOverrideHelper({required ProfileEntriesCompanion profile}) {
-    final populatedHeaders = profile.populatedHeaders.value;
-
-    Map<String, dynamic>? mPopulatedHeaders;
-    if (populatedHeaders != null) {
-      final m = jsonDecode(populatedHeaders) as Map;
-      mPopulatedHeaders = m.cast<String, dynamic>();
-    }
-
     return ProfileParser.profileOverride(
-      populatedHeaders: mPopulatedHeaders,
-      userOverride: UserOverride.fromStr(profile.userOverride.value),
+      populatedHeaders: decodeProfileHeaders(profile.populatedHeaders.value),
+      userOverride: decodeUserOverride(profile.userOverride.value),
     );
   }
 
@@ -509,6 +510,14 @@ class ProfileParser with InfraLogger {
       if (mode.key == trimmed || (mode.isWarp() && trimmed == 'warp')) return mode;
     }
     return null;
+  }
+
+  /// A `keep-top` header: how many proxies to keep running, or -1 for all. Anything else is no
+  /// header at all.
+  static int? keepTopHeader(String? value) {
+    final keepTop = int.tryParse(value?.trim() ?? '');
+    if (keepTop == null || (keepTop < 1 && keepTop != -1)) return null;
+    return keepTop;
   }
 
   /// Build the `tls-tricks` map from a subscription `fragment` header.
@@ -540,6 +549,7 @@ class ProfileParser with InfraLogger {
     // keys, so these string values must not leak through unchanged.
     final fragmentInput = headers.remove('fragment')?.toString();
     final extraSecurityInput = headers.remove('extra-security')?.toString();
+    final keepTopInput = headers.remove('keep-top')?.toString();
 
     // extra-security: exactly one documented mode. The app's own setting takes
     // precedence over the subscription; an unrecognised value is ignored.
@@ -557,6 +567,15 @@ class ProfileParser with InfraLogger {
       headers['tls-tricks'] = {'enable-fragment': true};
     } else if (fragmentTricks(fragmentInput) case final tricks?) {
       headers['tls-tricks'] = tricks;
+    }
+
+    // keep-top: the user's choice, else the subscription's; -1 (or none) runs every proxy
+    if (userOverride?.keepTop ?? keepTopHeader(keepTopInput) case final keepTop?) {
+      headers['keep-top'] = keepTop;
+    }
+    // keep-tags: the proxies the user chose run, and only them, while any is still in the profile
+    if (userOverride?.keepTags case final tags? when tags.isNotEmpty) {
+      headers['keep-tags'] = tags;
     }
 
     headers.removeWhere(

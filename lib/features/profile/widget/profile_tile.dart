@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -227,14 +226,13 @@ class ProfileActionButton extends HookConsumerWidget {
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
+      // drive(), not CurvedAnimation: the switcher calls this builder again on every rebuild,
+      // and a CurvedAnimation registers itself on the switcher's controller and is never
+      // disposed, so every rebuild of the tile leaked two of them for good.
       transitionBuilder: (child, animation) => FadeTransition(
-        opacity: CurvedAnimation(
-          parent: animation,
-          curve: const Interval(0, 0.6, curve: Curves.easeOut),
-          reverseCurve: Curves.easeIn,
-        ),
+        opacity: animation.drive(CurveTween(curve: const Interval(0, 0.6, curve: Curves.easeOut))),
         child: ScaleTransition(
-          scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack, reverseCurve: Curves.easeIn),
+          scale: animation.drive(CurveTween(curve: Curves.easeOutBack)),
           child: child,
         ),
       ),
@@ -370,37 +368,19 @@ class ProfileActionsMenu extends HookConsumerWidget {
       AdaptiveMenuItem(
         title: t.common.share,
         leadingIcon: Icon(AdaptiveIcon(context).share),
-        subItems: [
-          if (profile case RemoteProfileEntity(:final url, :final name)) ...[
-            AdaptiveMenuItem(
-              title: t.pages.profiles.share.urlToClipboard,
-              onTap: () async {
-                final link = LinkParser.generateSubShareLink(url, name);
-                if (link.isNotEmpty) {
-                  await Clipboard.setData(ClipboardData(text: link));
-                  if (context.mounted) {
-                    ref
-                        .read(inAppNotificationControllerProvider)
-                        .showSuccessToast(t.common.msg.export.clipboard.success);
-                  }
-                }
-              },
-            ),
-            AdaptiveMenuItem(
-              title: t.pages.profiles.share.showUrlQr,
-              onTap: () async {
-                final link = LinkParser.generateSubShareLink(url, name);
-                if (link.isNotEmpty) {
-                  await ref.read(dialogNotifierProvider.notifier).showQrCode(link, title: name);
-                }
-              },
-            ),
-          ],
-          AdaptiveMenuItem(
-            title: t.pages.profiles.share.jsonToClipboard,
-            onTap: () async => await ref.read(profilesNotifierProvider.notifier).exportConfigToClipboard(profile),
-          ),
-        ],
+        onTap: () async {
+          final link = switch (profile) {
+            RemoteProfileEntity(:final url, :final name) => LinkParser.generateSubShareLink(url, name),
+            _ => '',
+          };
+          await ref
+              .read(dialogNotifierProvider.notifier)
+              .showShareProfile(
+                name: profile.name,
+                link: link.isEmpty ? null : link,
+                loadConfig: () => ref.read(profilesNotifierProvider.notifier).generateConfig(profile),
+              );
+        },
       ),
       AdaptiveMenuItem(
         leadingIcon: const Icon(Icons.edit_rounded),

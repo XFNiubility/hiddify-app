@@ -315,6 +315,13 @@ const OutboundInfo$json = {
     {'1': 'download', '3': 16, '4': 1, '5': 3, '10': 'download'},
     {'1': 'detour', '3': 17, '4': 1, '5': 9, '10': 'detour'},
     {'1': 'status', '3': 18, '4': 1, '5': 14, '6': '.hcore.Status', '10': 'status'},
+    {'1': 'upload_speed', '3': 19, '4': 1, '5': 3, '10': 'uploadSpeed'},
+    {'1': 'upload_testing', '3': 20, '4': 1, '5': 8, '10': 'uploadTesting'},
+    {'1': 'download_speed', '3': 21, '4': 1, '5': 3, '10': 'downloadSpeed'},
+    {'1': 'download_testing', '3': 22, '4': 1, '5': 8, '10': 'downloadTesting'},
+    {'1': 'upload_speed_cached', '3': 23, '4': 1, '5': 8, '10': 'uploadSpeedCached'},
+    {'1': 'download_speed_cached', '3': 24, '4': 1, '5': 8, '10': 'downloadSpeedCached'},
+    {'1': 'error', '3': 25, '4': 1, '5': 9, '10': 'error'},
   ],
   '8': [
     {'1': '_ipinfo'},
@@ -336,8 +343,13 @@ final $typed_data.Uint8List outboundInfoDescriptor = $convert.base64Decode(
     'CiABKA1SBHBvcnQSEgoEaG9zdBgLIAEoCVIEaG9zdBIfCgt0YWdfZGlzcGxheRgMIAEoCVIKdG'
     'FnRGlzcGxheRIWCgZ1cGxvYWQYDyABKANSBnVwbG9hZBIaCghkb3dubG9hZBgQIAEoA1IIZG93'
     'bmxvYWQSFgoGZGV0b3VyGBEgASgJUgZkZXRvdXISJQoGc3RhdHVzGBIgASgOMg0uaGNvcmUuU3'
-    'RhdHVzUgZzdGF0dXNCCQoHX2lwaW5mb0IVChNfZ3JvdXBfc2VsZWN0ZWRfdGFnQh0KG19ncm91'
-    'cF9zZWxlY3RlZF90YWdfZGlzcGxheQ==');
+    'RhdHVzUgZzdGF0dXMSIQoMdXBsb2FkX3NwZWVkGBMgASgDUgt1cGxvYWRTcGVlZBIlCg51cGxv'
+    'YWRfdGVzdGluZxgUIAEoCFINdXBsb2FkVGVzdGluZxIlCg5kb3dubG9hZF9zcGVlZBgVIAEoA1'
+    'INZG93bmxvYWRTcGVlZBIpChBkb3dubG9hZF90ZXN0aW5nGBYgASgIUg9kb3dubG9hZFRlc3Rp'
+    'bmcSLgoTdXBsb2FkX3NwZWVkX2NhY2hlZBgXIAEoCFIRdXBsb2FkU3BlZWRDYWNoZWQSMgoVZG'
+    '93bmxvYWRfc3BlZWRfY2FjaGVkGBggASgIUhNkb3dubG9hZFNwZWVkQ2FjaGVkEhQKBWVycm9y'
+    'GBkgASgJUgVlcnJvckIJCgdfaXBpbmZvQhUKE19ncm91cF9zZWxlY3RlZF90YWdCHQobX2dyb3'
+    'VwX3NlbGVjdGVkX3RhZ19kaXNwbGF5');
 
 @$core.Deprecated('Use ipInfoDescriptor instead')
 const IpInfo$json = {
@@ -565,6 +577,20 @@ const UrlTestRequest$json = {
 /// Descriptor for `UrlTestRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List urlTestRequestDescriptor = $convert.base64Decode(
     'Cg5VcmxUZXN0UmVxdWVzdBIQCgN0YWcYASABKAlSA3RhZw==');
+
+@$core.Deprecated('Use speedTestRequestDescriptor instead')
+const SpeedTestRequest$json = {
+  '1': 'SpeedTestRequest',
+  '2': [
+    {'1': 'tag', '3': 1, '4': 1, '5': 9, '10': 'tag'},
+    {'1': 'size', '3': 2, '4': 1, '5': 3, '10': 'size'},
+  ],
+};
+
+/// Descriptor for `SpeedTestRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List speedTestRequestDescriptor = $convert.base64Decode(
+    'ChBTcGVlZFRlc3RSZXF1ZXN0EhAKA3RhZxgBIAEoCVIDdGFnEhIKBHNpemUYAiABKANSBHNpem'
+    'U=');
 
 @$core.Deprecated('Use generateWarpConfigRequestDescriptor instead')
 const GenerateWarpConfigRequest$json = {

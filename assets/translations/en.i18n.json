@@ -122,7 +122,9 @@
         "unsorted": "Default",
         "name": "Alphabetically",
         "delay": "By delay",
-        "usage": "By usage"
+        "usage": "By usage",
+        "upload": "By upload speed",
+        "download": "By download speed"
       },
       "ipInfo": {
         "address": "IP address",
@@ -143,11 +145,93 @@
         "searching": "Searching",
         "reconnecting": "Reconnecting"
       },
-      "signalStyle": "Signal style"
+      "signalStyle": "Signal style",
+      "keepTop": {
+        "picking": "Finding the $keep fastest of $count…",
+        "pickingBody": "All the proxies are tested once; then only the fastest keep running.",
+        "kept": "The $n fastest are running",
+        "keptBody": "$paused other proxies are paused, to save battery and data.",
+        "showAll": "Show all $count",
+        "big": "$count proxies are running",
+        "bigBody": "Keep only the $keep fastest running, to save battery and data.",
+        "keep": "Keep the $keep fastest",
+        "change": "Change how many",
+        "chosen": "Your $n chosen proxies are running",
+        "choose": "Choose"
+      },
+      "upload": {
+        "test": "Test upload speed",
+        "failed": "Could not start the speed test",
+        "hint": "Tap: upload speed · Hold: download speed",
+        "hintBoth": "Tap: both speeds · Hold: download speed"
+      },
+      "speedTest": {
+        "title": "Speed test",
+        "what": "What to test",
+        "download": "Download",
+        "upload": "Upload",
+        "amount": "Amount per proxy",
+        "proxies": "Proxies to test",
+        "proxiesHint": "The fastest by ping",
+        "all": "All",
+        "fastest": "$n fastest",
+        "through": "$n MB through each of the $count fastest",
+        "throughAll": "$n MB through each of $count proxies",
+        "throughEach": "$n MB through each proxy",
+        "start": "Start test",
+        "save": "Save",
+        "testDownload": "Test download speed",
+        "both": "Both",
+        "bothWays": "down and up",
+        "amountHint": "more is more accurate",
+        "clear": "Clear saved results",
+        "cleared": "Cleared",
+        "which": "Which proxies",
+        "shown": "Shown ($n)",
+        "chosen": "Chosen ($n)"
+      }
     },
     "profiles": {
       "title": "Profiles",
       "add": "Add profile",
+      "fromPhone": {
+        "title": "Add from your phone",
+        "scan": "Scan this code with your phone's camera, paste a subscription link, and send it.",
+        "sameNetwork": "Your phone and this TV must be on the same Wi-Fi network.",
+        "noNetwork": "This TV is not on a local network. Connect it to Wi-Fi to add a link from your phone.",
+        "locked": "Too many wrong codes were tried, so this is locked. Close this and open it again for a new code.",
+        "received": "Received from your phone",
+        "from": "From $address",
+        "page": {
+          "title": "Send to Hiddify on your TV",
+          "intro": "Add a subscription to your TV in four quick steps, without typing it with the remote.",
+          "steps": {
+            "network": {
+              "title": "Join the same Wi-Fi",
+              "body": "Your phone and the TV must be on the same Wi-Fi network, or this page can't reach the TV."
+            },
+            "copy": {
+              "title": "Copy your link",
+              "body": "Copy the subscription link from your provider, or any proxy link or config."
+            },
+            "paste": {
+              "title": "Paste it here",
+              "body": "Tap the box below, paste the link, then tap “Send to TV”."
+            },
+            "confirm": {
+              "title": "Confirm on the TV",
+              "body": "The link shows up on the TV. Press Import with the remote. Nothing is added until you do."
+            }
+          },
+          "label": "Subscription link",
+          "hint": "Paste a subscription link or config",
+          "send": "Send to TV",
+          "sentTitle": "Sent to your TV",
+          "sent": "Now press Import on the TV to add it. You can send another link below.",
+          "empty": "Paste a link first.",
+          "footer": "This page works only while “Add profile” is open on the TV, and only on your local network."
+        }
+      },
       "update": "Update profile",
       "viewAllProfiles": "View all profiles",
       "activeProfileName": "Active profile name: “${name}”",
@@ -157,9 +241,16 @@
       "failedToLoad": "Failed to load",
       "updateSubscriptions": "Update subscriptions",
       "share": {
-        "urlToClipboard": "Copy URL",
-        "showUrlQr": "Show QR code",
-        "jsonToClipboard": "Copy JSON"
+        "title": "Share profile",
+        "scanHint": "Scan it with Hiddify on another device to add this profile",
+        "link": "Subscription link",
+        "config": "Configuration",
+        "configHint": "The full JSON this profile runs with, your settings included",
+        "configFailed": "Couldn't build the configuration",
+        "copy": "Copy",
+        "shareFile": "Share",
+        "saveFile": "Save",
+        "tooLargeToCopy": "Too large for the clipboard: share or save it as a file"
       },
       "msg": {
         "save": {
@@ -279,13 +370,19 @@
         "useXrayCoreWhenPossible": "Use xray-core when possible",
         "useXrayCoreWhenPossibleMsg": "Use xray-core when parsing subscription links. Reimport the subscription to turn this on.",
         "useSystemTlsEngine": "Use the system’s TLS when available",
-        "useSystemTlsEngineMsg": "Connections without a TLS fingerprint use the TLS of macOS, iOS, or Windows once it passes a check on this device; otherwise they look like Chrome."
+        "useSystemTlsEngineMsg": "Connections without a TLS fingerprint use the TLS of macOS, iOS, or Windows once it passes a check on this device; otherwise they look like Chrome.",
+        "uploadTestSize": "Upload test size",
+        "megabytes": "$n MB",
+        "speedTest": "Speed test"
       },
       "routing": {
         "title": "Routing",
         "routeRule": {
           "add": "Add rule",
           "delete": "Delete rule",
+          "duplicate": "Duplicate rule",
+          "duplicated": "Copied as a new rule: edit it as you like",
+          "copyAll": "Copy all",
           "options": {
             "import": {
               "clipboard": "Import rules from clipboard",
@@ -316,10 +413,11 @@
             "validDomain": "Valid “Domain” like\n@:pages.settings.routing.routeRule.rule.validDomainEx",
             "validDomainSuffixEx": ".com or .ir",
             "validDomainSuffix": "Valid “Domain suffix” like\n@:pages.settings.routing.routeRule.rule.validDomainSuffixEx",
+            "builtinReadOnly": "A built-in rule cannot be changed. Duplicate it and edit the copy.",
             "tileTitle(map)": {
               "name": "Name",
               "outbound": "Outbound if match",
-              "rule_set": "Rule set URL",
+              "rule_set": "URLset",
               "package_name": "Package names",
               "process_name": "Process names",
               "process_path": "Process paths",
@@ -363,10 +461,16 @@
           }
         },
         "builtinRules": {
-          "tag": "Built-in",
+          "tag": "Built-in rule",
           "bypassLan": "Bypass LAN",
-          "blockAds": "Block ads and malware",
-          "bypassRegion": "Bypass sites in $region"
+          "systemDirect": {
+            "apple": "Apple services",
+            "microsoft": "Microsoft services",
+            "android": "Android services",
+            "linux": "Linux updates"
+          },
+          "blockAds": "Ads and malware",
+          "bypassRegion": "Sites in $region"
         },
         "appBasedRouting": {
           "title": "App-based routing",
@@ -458,13 +562,28 @@
           "consistentHashDescription": "Each site always uses the same server",
           "stickySessionDescription": "Each site keeps a random server until you reconnect"
         },
+        "defaultProxy": {
+          "title": "Default proxy",
+          "lowest": "Lowest ping",
+          "balance": "Balance",
+          "first": "First proxy",
+          "lowestDescription": "Until you pick a proxy, the fastest one is used",
+          "balanceDescription": "Until you pick a proxy, connections are spread over all of them",
+          "firstDescription": "Until you pick a proxy, the profile's first one is used"
+        },
         "resolveDestination": "Resolve destination",
         "ipv6Route": "IPv6",
+        "ipv6RouteHelpTitle": "Why is IPv6 off?",
+        "ipv6RouteTurnOnTitle": "Turn on IPv6?",
+        "ipv6RouteTurnOn": "Turn on",
+        "ipv6RouteHelp": "Most proxies have no IPv6 at their exit.\n\nA connection the proxy cannot carry dies right after it opens, and browsers never retry it over IPv4, so Google and YouTube fail to load.\n\nWhen on, every proxy is checked once at its connection test. IPv6 is used only through a proxy that carries it; everything else goes over IPv4, unnoticed.\n\nIPv6 always travels inside the VPN, never around it.",
         "ipv6Modes": {
-          "preferIpv4": "IPv4 first",
-          "preferIpv6": "IPv6 first",
-          "preferIpv4Description": "Names resolve to IPv4 first. IPv6 is used only through a proxy that carries it. Both go through the VPN.",
-          "preferIpv6Description": "Names resolve to IPv6 first through a proxy that carries it, else to IPv4. Both go through the VPN."
+          "ipv4Only": "Off (IPv4 only)",
+          "preferIpv4": "On, IPv4 first",
+          "preferIpv6": "On, IPv6 first",
+          "ipv4OnlyDescription": "Apps use IPv4 only. IPv6 is refused at once.",
+          "preferIpv4Description": "IPv4 first. IPv6 only through a proxy verified to carry it.",
+          "preferIpv6Description": "IPv6 first, only through a proxy verified to carry it."
         }
       },
       "dns": {
@@ -498,17 +617,34 @@
         "strictRoute": "Strict route",
         "tunImplementation": "TUN implementation",
         "tunImplementations": {
+          "sing15": "Sing 15",
           "mixed": "Mixed",
           "system": "System",
           "gvisor": "gVisor"
         },
-        "mixedPort": "Mixed port",
+        "mixedPort": "Proxy port (SOCKS5/4, HTTP)",
         "tproxyPort": "Transparent proxy port",
         "directPort": "Direct port",
         "redirectPort": "Redirect port",
-        "lanSharing": "Secure VPN sharing",
+        "lanSharing": "Share on local network",
+        "connectionSharing": "Connection sharing",
         "qrCode": "QR code",
-        "lanQrSubtitle": "SOCKS5 proxy"
+        "closedInVpn": "closed in VPN mode, unless shared",
+        "proxySecret": "Proxy secret",
+        "noSecret": "No secret: any app or device that reaches the port can use it",
+        "generateSecret": "Generate new",
+        "removeSecret": "Remove the secret?",
+        "removeSecretMsg": "Without a secret, any app on this device, and any device on the network while sharing, can use the proxy with no user or password. Remove it at your own risk.",
+        "localProxy": "Local proxy",
+        "localProxyInVpn": "Keep open in VPN mode",
+        "localProxyInVpnHint": "Apps already use the VPN; only for apps set to use the proxy",
+        "localProxyAuth": "Require password",
+        "localProxyAuthHint": "Some apps, like browsers, can't send a SOCKS password",
+        "notAsSystemProxy": "Not asked as the system proxy, which can't send one",
+        "lanGroup": "Local network sharing",
+        "lanSharingPort": "Sharing port",
+        "otherPorts": "Other ports",
+        "closedInVpnLocal": "closed in VPN mode"
       },
       "tlsTricks": {
         "title": "TLS tricks",
@@ -531,6 +667,25 @@
         }
       },
       "chain": {
+        "quick": {
+          "off": "Off",
+          "extraSecurity": {
+            "title": "Extra security",
+            "subtitle": "When you don't trust the proxy",
+            "ipBy": "Your IP is set by $mode",
+            "notTracked": "Your VPN provider can't see your traffic",
+            "forPublic": "Good for public and anonymous proxies",
+            "slower": "May reduce speed"
+          },
+          "unblocker": {
+            "title": "Proxy unblocker",
+            "subtitle": "Gets the proxy past filtering",
+            "mayConnect": "A filtered proxy may connect",
+            "personalOnly": "Only useful for a personal proxy",
+            "notForPublic": "Not suited to public proxies",
+            "slower": "The proxy gets a bit slower"
+          }
+        },
         "title": "Chain",
         "subtitle": "Extra security & unblocker",
         "finalIp": "Final IP",
@@ -558,6 +713,7 @@
         "warp": {
           "missingConfig": "Missing WARP config",
           "licenseKey": "License key",
+          "tunnel": "Tunnel",
           "cleanIp": "Clean IP",
           "port": "Port",
           "noise": {
@@ -574,7 +730,50 @@
               "dnsCloudflare": "DNS (cloudflare.com)",
               "sip": "SIP (VoIP call)",
               "stun": "STUN (video call)"
-            }
+            },
+            "title": "WireGuard noise"
+          },
+          "endpoint": "Endpoint",
+          "endpointSources": {
+            "profile": "Assigned by Cloudflare",
+            "scan": "Scan",
+            "custom": "Custom"
+          },
+          "customServer": "Address",
+          "mtu": "MTU",
+          "customized": "Customized",
+          "scanner": {
+            "title": "Scanner",
+            "searchNoise": "Search noise",
+            "maxRtt": "Max RTT (ms)",
+            "timeout": "Probe timeout (ms)",
+            "count": "Addresses to probe",
+            "concurrency": "Parallel probes",
+            "ports": "Ports",
+            "cidrs": "Ranges"
+          },
+          "masque": {
+            "title": "MASQUE",
+            "vhttp": "HTTP version",
+            "serverName": "Server name",
+            "useIpv6": "Prefer IPv6",
+            "udpTimeout": "UDP timeout (s)",
+            "keepalive": "UDP keepalive (s)",
+            "packetSize": "Initial packet size",
+            "reconnectDelay": "Reconnect delay (s)",
+            "tlsInsecure": "Skip TLS verification",
+            "fragment": "Fragment TLS",
+            "fragmentDelay": "Fragment fallback delay (ms)",
+            "recordFragment": "Fragment TLS records",
+            "ech": "Encrypted Client Hello",
+            "echConfig": "ECH config",
+            "echQueryServerName": "ECH query name"
+          },
+          "awg": {
+            "title": "AmneziaWG",
+            "jc": "Junk packets",
+            "jmin": "Min junk size",
+            "jmax": "Max junk size"
           }
         },
         "psiphon": {
@@ -677,7 +876,13 @@
       "msg": "A new version of @:common.appTitle is available. Update now?",
       "currentVersion": "Current version",
       "newVersion": "New version",
-      "updateNow": "Update now"
+      "updateNow": "Update now",
+      "downloading": "Downloading…",
+      "installing": "Starting the installer…",
+      "allowInstall": "Allow Hiddify to install apps in the settings that opened, then try again.",
+      "failed": "The update could not be installed.",
+      "openPage": "Open the release page",
+      "tryAgain": "Try again"
     },
     "confirmation": {
       "settings": {
@@ -774,7 +979,13 @@
       "location": "Location",
       "postalCode": "Postal code",
       "download": "Download",
-      "upload": "Upload"
+      "upload": "Upload",
+      "ping": "Ping",
+      "speed": "Speed",
+      "server": "Server",
+      "country": "Country",
+      "tapToTest": "Tap to test",
+      "error": "Why it failed"
     },
     "windowClosing": {
       "askEachTime": "Ask each time",
@@ -784,8 +995,8 @@
     "qrCode": {
       "copyFullLink": "Copy full link",
       "copied": "Copied",
-      "localOnlyTitle": "This device only",
-      "localOnlyMessage": "Other devices can’t reach 127.0.0.1",
+      "lanLine": "SOCKS5 · same network only",
+      "noLocalNetwork": "No local network found",
       "ip": "IP",
       "port": "Port",
       "username": "Username",
@@ -800,6 +1011,71 @@
       "title": "Hiddify crashed last time",
       "msg": "Send a report to the developers so this gets fixed? It holds the crash details, the logs and your configuration with servers, keys and passwords removed, as one zip file you can look at before sending.",
       "send": "Send report"
+    },
+    "keepTop": {
+      "title": "A big subscription",
+      "description": "This profile has $count proxies. Running all of them costs battery, data and memory. Hiddify can test them once, keep the $keep fastest running and pause the others.",
+      "hint": "You can run all of them again any time, from the end of the proxy list.",
+      "keeping": "The $keep fastest run, the others pause",
+      "all": "All $count run",
+      "keep": "Keep the $keep fastest",
+      "useAll": "Use all $count",
+      "howMany": "How many to keep running",
+      "pickByHand": "Choose the proxies yourself"
+    },
+    "keepTags": {
+      "title": "Choose proxies",
+      "hint": "Only these run, every time you connect.",
+      "search": "Search",
+      "all": "Select all",
+      "none": "Clear",
+      "run": "Use these $n",
+      "sort": "Sort",
+      "sortProfile": "Profile order",
+      "sortPing": "Ping",
+      "sortDownload": "Download",
+      "sortUpload": "Upload",
+      "selectFastest": "$n fastest",
+      "statusChosen": "Chosen",
+      "statusAnswering": "Answering",
+      "statusPaused": "Paused",
+      "paused": "$n proxies are paused: they have no ping and can't be tested.",
+      "wake": "Run all to test",
+      "offline": "Connect to see their ping and test them.",
+      "offlineTitle": "Not connected",
+      "shown": "$n shown",
+      "noMatch": "No proxy matches",
+      "chosenHint": "Tap a proxy above to choose it",
+      "allShown": "All of them are in the list above",
+      "notShown": "Not shown:",
+      "protocol": "Protocol",
+      "country": "Country",
+      "anyProtocol": "Any protocol",
+      "anyCountry": "Any country",
+      "otherCountries": "Others"
+    },
+    "localProxy": {
+      "steps": [
+        "Open the app's proxy settings",
+        "Choose SOCKS5 or HTTP",
+        "Enter the values below · tap to copy",
+        "Keep Hiddify connected"
+      ],
+      "hint": "Proxy mode · how to use",
+      "setPassword": "Set password",
+      "manual": "Manual",
+      "dontShowAgain": "Don't show again",
+      "thisDevice": "This device",
+      "otherDevices": "Other devices",
+      "server": "Server",
+      "noPassword": "No password set",
+      "turnOnSharing": "Turn on sharing",
+      "copyLink": "Copy link",
+      "telegramLink": "Telegram link",
+      "fullLink": "Full link",
+      "portRange": "Use a port from 1024 to 65535",
+      "passwordTooShort": "At least 4 characters",
+      "edit": "Edit"
     }
   },
   "connection": {

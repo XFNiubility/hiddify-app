@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/utils/platform_utils.dart';
 
 @JsonEnum(valueField: 'key')
@@ -18,12 +19,18 @@ enum ServiceMode {
 
   final String key;
 
-  static ServiceMode get defaultMode => PlatformUtils.isDesktop ? systemProxy : tun;
+  /// The Mac App Store build: its VPN is the Network Extension, and its sandbox can not set the
+  /// system proxy.
+  static bool get _macAppStore => Platform.isMacOS && Release.read() == Release.appStore;
+
+  static ServiceMode get defaultMode => PlatformUtils.isDesktop && !_macAppStore ? systemProxy : tun;
 
   /// supported service mode based on platform, use this instead of [values] in UI
   static List<ServiceMode> get choices {
     if (Platform.isWindows || Platform.isLinux) {
       return values;
+    } else if (_macAppStore) {
+      return [proxy, tun];
     } else if (Platform.isMacOS) {
       return [proxy, systemProxy, tun];
     }
@@ -75,11 +82,39 @@ enum BalancerStrategy {
   };
 }
 
-/// Which address family the core resolves first. Both families always go through the VPN and
-/// IPv6 is used only through a proxy the core found carrying it, so there is no "off": IPv6 that
-/// is not routed leaks past the VPN (#2307, #2420).
+/// What a profile's select group starts on until the user picks a proxy in it; their pick is kept.
+@JsonEnum(valueField: 'key')
+enum DefaultProxy {
+  lowest("lowest"),
+  balance("balance"),
+  first("first");
+
+  const DefaultProxy(this.key);
+
+  final String key;
+
+  String present(TranslationsEn t) => switch (this) {
+    lowest => t.pages.settings.routing.defaultProxy.lowest,
+    balance => t.pages.settings.routing.defaultProxy.balance,
+    first => t.pages.settings.routing.defaultProxy.first,
+  };
+
+  String describe(TranslationsEn t) => switch (this) {
+    lowest => t.pages.settings.routing.defaultProxy.lowestDescription,
+    balance => t.pages.settings.routing.defaultProxy.balanceDescription,
+    first => t.pages.settings.routing.defaultProxy.firstDescription,
+  };
+}
+
+/// IPv6 for the apps. Off by default ([ipv4Only]): most proxies have no IPv6 at their exit, and a
+/// connection the proxy cannot carry dies after it opened, which browsers never retry over IPv4
+/// (#2307, #2420). On ([preferIPv4], [preferIPv6]), the core verifies each proxy once at its URL
+/// test and uses IPv6 only through a proxy found carrying it, carrying the rest over IPv4. IPv6
+/// always routes into the VPN, so nothing leaks past it. A subscription may turn it on with an
+/// `ipv6-mode` header.
 @JsonEnum(valueField: 'key')
 enum IPv6Mode {
+  ipv4Only("ipv4_only"),
   preferIPv4("prefer_ipv4"),
   preferIPv6("prefer_ipv6");
 
@@ -87,18 +122,21 @@ enum IPv6Mode {
 
   final String key;
 
-  /// The stored value; the retired ipv4_only and ipv6_only count as the preference nearest them.
+  /// The stored value; the retired ipv6_only counts as the preference nearest it.
   static IPv6Mode fromKey(String? key) => switch (key) {
+    "prefer_ipv4" => preferIPv4,
     "prefer_ipv6" || "ipv6_only" => preferIPv6,
-    _ => preferIPv4,
+    _ => ipv4Only,
   };
 
   String present(TranslationsEn t) => switch (this) {
+    ipv4Only => t.pages.settings.routing.ipv6Modes.ipv4Only,
     preferIPv4 => t.pages.settings.routing.ipv6Modes.preferIpv4,
     preferIPv6 => t.pages.settings.routing.ipv6Modes.preferIpv6,
   };
 
   String describe(TranslationsEn t) => switch (this) {
+    ipv4Only => t.pages.settings.routing.ipv6Modes.ipv4OnlyDescription,
     preferIPv4 => t.pages.settings.routing.ipv6Modes.preferIpv4Description,
     preferIPv6 => t.pages.settings.routing.ipv6Modes.preferIpv6Description,
   };
@@ -125,12 +163,20 @@ enum DomainStrategy {
   };
 }
 
+/// The TUN's TCP/IP stack. [sing15] is sing-tun's own stack, the default since sing-box 1.15: the
+/// core then sends no `stack` option. The others are the legacy stacks, sent as chosen, kept for a
+/// user who needs one until sing-box 1.17 removes them.
+/// What a speed test of a proxy measures: its download, its upload, or both, one after the other.
+enum SpeedTestDirection { download, upload, both }
+
 enum TunImplementation {
+  sing15,
   mixed,
   system,
   gvisor;
 
   String present(TranslationsEn t) => switch (this) {
+    sing15 => t.pages.settings.inbound.tunImplementations.sing15,
     mixed => t.pages.settings.inbound.tunImplementations.mixed,
     system => t.pages.settings.inbound.tunImplementations.system,
     gvisor => t.pages.settings.inbound.tunImplementations.gvisor,
@@ -174,6 +220,13 @@ enum ChainMode {
     return mode != null && selectable.contains(mode) ? mode : fallback;
   }
 
+  /// The mode of a core mode key; every WARP tunnel's key is [warp].
+  static ChainMode? fromKey(String key) =>
+      WarpTunnel.values.any((e) => e.key == key) ? warp : values.where((e) => e.key == key).firstOrNull;
+
+  /// The key the core runs this mode by: WARP's says which tunnel.
+  String coreKey(WarpTunnel tunnel) => this == warp ? tunnel.key : key;
+
   String present(Translations t) => switch (this) {
     psiphon => t.common.psiphon,
     warp => t.common.warp,
@@ -195,6 +248,57 @@ enum ChainMode {
   bool isPsiphon() => this == psiphon;
   bool isWarp() => this == warp;
   bool isProfile() => this == profile;
+}
+
+/// The tunnel a WARP chain hop runs, by the core's chain mode key.
+enum WarpTunnel {
+  // races WireGuard, AmneziaWG and MASQUE and keeps the fastest
+  auto('warp_auto'),
+  wireguard('warp'),
+  amneziaWg('warp_awg'),
+  masque('warp_masque');
+
+  const WarpTunnel(this.key);
+
+  final String key;
+
+  String present(Translations t) => switch (this) {
+    auto => t.common.auto,
+    wireguard => 'WireGuard',
+    amneziaWg => 'AmneziaWG',
+    masque => 'MASQUE',
+  };
+
+  /// MASQUE has no WireGuard peer: the clean IP, port and noise do not apply to it.
+  bool get usesWireGuardPeer => this != masque;
+}
+
+/// Where a WARP chain hop finds its peer.
+@JsonEnum(valueField: 'key')
+enum WarpEndpointSource {
+  /// the endpoint Cloudflare assigned to the device
+  profile('profile'),
+
+  /// found by the scanner, which remembers what answered on this network
+  scan('scan'),
+
+  /// the address the user typed (the clean IP and port)
+  custom('custom');
+
+  const WarpEndpointSource(this.key);
+
+  final String key;
+
+  /// The sources a hop can use. A hop behind a detour (extra security dials through the user's
+  /// pick) never scans: probing endpoints through a proxy only measures the proxy, so the core
+  /// takes the assigned endpoint instead.
+  static List<WarpEndpointSource> of({required bool detour}) => detour ? const [profile, custom] : values;
+
+  String present(Translations t) => switch (this) {
+    profile => t.pages.settings.chain.warp.endpointSources.profile,
+    scan => t.pages.settings.chain.warp.endpointSources.scan,
+    custom => t.pages.settings.chain.warp.endpointSources.custom,
+  };
 }
 
 @JsonEnum(valueField: 'key')

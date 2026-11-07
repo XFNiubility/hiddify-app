@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:grpc/grpc.dart';
@@ -15,6 +16,7 @@ import 'package:hiddify/hiddifycore/core_interface/core_interface_wrapper_stub.d
 import 'package:hiddify/hiddifycore/generated/v2/hcommon/common.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
+import 'package:hiddify/hiddifycore/grpc_errors.dart';
 import 'package:hiddify/hiddifycore/grpc_stream_cancel.dart';
 import 'package:hiddify/hiddifycore/init_signal.dart';
 import 'package:hiddify/singbox/model/core_status.dart';
@@ -521,6 +523,32 @@ class HiddifyCoreService with InfraLogger {
     });
   }
 
+  /// Measures the upload ([download] false) or download speed of [tag], a proxy or each proxy of a
+  /// group, moving [bytes] through each; the speeds come with the proxies (upload_speed,
+  /// download_speed). No tag: the proxy the selection uses.
+  /// Forgets every speed test result, of this run and the earlier ones the core kept.
+  TaskEither<String, Unit> clearSpeedTests() {
+    return TaskEither(() async {
+      final res = await core.bgClient.clearSpeedTests(Empty());
+      if (res.code != ResponseCode.OK) return left("${res.code} ${res.message}");
+      return right(unit);
+    });
+  }
+
+  TaskEither<String, Unit> speedTest(String tag, int bytes, {required bool download}) {
+    return TaskEither(() async {
+      try {
+        final request = SpeedTestRequest(tag: tag, size: Int64(bytes));
+        final res = await (download ? core.bgClient.downloadTest(request) : core.bgClient.uploadTest(request));
+        if (res.code != ResponseCode.OK) return left("${res.code} ${res.message}");
+        return right(unit);
+      } catch (e) {
+        loggy.error("error in speed test: $e");
+        rethrow;
+      }
+    });
+  }
+
   // The 300-message buffer and its BehaviorSubject are gone. They existed so
   // the logs page could show history when it opened, and only ever held the
   // engine's lines. The in-memory ring in core/logger does that for every
@@ -668,9 +696,10 @@ class HiddifyCoreService with InfraLogger {
     final logLevel = ref.read(ConfigOptions.logLevel);
     final coreLogLevel = getCoreLogLevel(logLevel);
     final listenKey = "${key}LogListener";
-    // In macOS proxy mode the background client is the foreground one; a second listener on it
-    // only received and logged every core line twice.
-    if (key == "bg" && identical(cc, core.fgClient)) {
+    // In macOS proxy mode the background client is the foreground one, and on Android both
+    // channels reach the one core process; a second listener only received and logged every
+    // core line twice.
+    if (key == "bg" && (identical(cc, core.fgClient) || core.coreSharesProcess)) {
       await stopListenSingle(listenKey);
       return;
     }
@@ -723,10 +752,10 @@ class HiddifyCoreService with InfraLogger {
       },
       cancelOnError: true,
       onError: (error) {
-        // a core that is not running (the VPN is off, so there is no background core to reach)
-        // refuses the connection; that is its normal state, not an error of the app
-        if (error is GrpcError && error.code == StatusCode.unavailable) {
-          loggy.debug('Stream closed, the core is not reachable: ${error.message}');
+        // a core that is not running (the VPN is off) refuses the connection, and one that stops
+        // (every reconnect) closes it under the stream; neither is an error of the app
+        if (isCoreGoneError(error)) {
+          loggy.debug('Stream closed, the core is not reachable: ${(error as GrpcError).message}');
         } else {
           loggy.error('Stream error: $error');
         }
